@@ -105,15 +105,15 @@ tools/<domain>/
 插件入口：
 
 ```text
-opencode-plugin.js
+.opencode/plugins/agent-plugin.js
 ```
 
-`.opencode/plugins/agent-plugin.js` 仅作为本地源码形态下的兼容入口，转发到根插件入口。
+遵循 OpenCode 插件格式约定，直接作为插件入口被加载。
 
 当前职责：
 
 1. 将本仓库 `skills/` 加入 `config.skills.paths`，路径存在时才注册。
-2. 读取 `agents/*.md` 并注入 `config.agent`。
+2. 读取 `agents/*.md` 并注入 `config.agents`。
 3. 不覆盖用户已有 MCP 配置。
 
 要求：

@@ -2,9 +2,9 @@
   "name": "agent-plugin",
   "version": "1.0.0",
   "description": "场景化智能体插件集合：agents/skills/tools 插拔式扩展",
-  "main": "opencode-plugin.js",
+  "main": ".opencode/plugins/agent-plugin.js",
   "scripts": {
-    "verify": "node --check opencode-plugin.js && node --check .opencode/plugins/agent-plugin.js && echo \"Verification passed\""
+    "verify": "node --check .opencode/plugins/agent-plugin.js && echo \"Verification passed\""
   },
   "keywords": [
     "opencode",

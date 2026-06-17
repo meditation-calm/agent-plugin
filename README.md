@@ -79,10 +79,9 @@ agent-plugin/
 ├── README.md
 ├── AGENTS.md
 ├── LICENSE
-├── opencode-plugin.js
 ├── .opencode/
 │   └── plugins/
-│       └── agent-plugin.js
+│       └── agent-plugin.js  # OpenCode 插件入口
 ├── agents/
 │   └── *.md            # 场景化 Agent 定义
 ├── skills/
