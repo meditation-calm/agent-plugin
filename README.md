@@ -104,8 +104,8 @@ agent-plugin/
 ## 相关仓库
 
 - [agent-master](https://github.com/ArchAIHarness/agent-master) - Agent 控制面服务
-- [agent-image](https://github.com/ArchAIHarness/agent-image) - OpenCode Runtime 镜像
-- [agent-webui](https://github.com/ArchAIHarness/agent-webui) - Agent WebUI 前端
+- [agent-image](https://github.com/ArchAIHarness/agent-image) - 无头 OpenCode Runtime 镜像
+- [agent-image-webui](https://github.com/ArchAIHarness/agent-image-webui) - 带 WebUI 的 Runtime 镜像（OpenCode + AionUi）
 
 ---
 
