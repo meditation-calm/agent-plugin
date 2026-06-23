@@ -159,10 +159,12 @@ export const AgentPlugin = async ({ client, directory }) => {
   agents.forEach(a => {
     const content = fs.readFileSync(a.path, 'utf-8');
     const { frontmatter } = extractFrontmatter(content);
+    const validColors = ['primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info'];
+    const color = frontmatter.color || 'accent';
     agentConfigs[a.name] = {
       description: frontmatter.description || '',
       mode: frontmatter.mode || 'subagent',
-      color: frontmatter.color || 'default',
+      color: validColors.includes(color) ? color : (color.startsWith('#') && color.length === 7 ? color : 'accent'),
       prompt: `{file:${a.path}}`,
     };
   });
