@@ -167,13 +167,7 @@ export const AgentPlugin = async ({ client, directory }) => {
     };
   });
 
-  const toolConfigs = {};
-  tools.forEach(t => {
-    toolConfigs[t.name] = {
-      path: t.path,
-      description: `${t.name} custom tool`,
-    };
-  });
+  const toolNames = tools.map(t => t.name);
 
   // 更新注册表
   const allContent = [...skills, ...agents, ...tools]
@@ -224,9 +218,11 @@ export const AgentPlugin = async ({ client, directory }) => {
         Object.assign(config.agents, agentConfigs);
       }
 
-      if (Object.keys(toolConfigs).length > 0) {
+      if (toolNames.length > 0) {
         if (!config.tools) config.tools = {};
-        Object.assign(config.tools, toolConfigs);
+        toolNames.forEach(name => {
+          config.tools[name] = true;
+        });
       }
     },
 
