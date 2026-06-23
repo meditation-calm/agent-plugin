@@ -7,8 +7,8 @@
 [![OpenCode](https://img.shields.io/badge/OpenCode-Plugin%20%7C%20Agents%20%7C%20Skills-6E40C9?logo=opensourceinitiative&logoColor=white)](https://opencode.ai)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Agents](https://img.shields.io/badge/agents-1-success.svg)](#agents)
-[![Skills](https://img.shields.io/badge/skills-1-blue.svg)](#skills)
-[![Tools](https://img.shields.io/badge/tools-1-orange.svg)](#tools)
+[![Skills](https://img.shields.io/badge/skills-3-blue.svg)](#skills)
+[![MCP](https://img.shields.io/badge/mcp-1-purple.svg)](#mcp)
 
 </div>
 
@@ -62,7 +62,7 @@
                               ▼
 ┌─────────────────────────────────────────────────────────────┐
 │              agent-plugin.js 执行                             │
-│   - 发现 skills/agents/tools                                 │
+│   - 发现 skills/agents/mcp                                  │
 │   - 解析 frontmatter 提取元数据                               │
 │   - 注册到 OpenCode config                                   │
 │   - 更新注册表（版本追踪）                                     │
@@ -73,7 +73,7 @@
 │                    组件可用                                   │
 │  - Skills: 通过 skill tool 加载                             │
 │  - Agents: 通过 @mention 调用                               │
-│  - Tools: 自动发现并注册                                     │
+│  - MCP: 自动注册本地 MCP 服务                                │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -104,7 +104,7 @@
 
 | Agent | 定位 |
 |---|---|
-| [code-reviewer](./agents/code-reviewer.md) | 代码审查专家，检查质量、安全性和最佳实践 |
+| [question-generator-agent](./agents/question-generator-agent.md) | 智能出题助手，生成、校验、保存和编排题目 |
 
 ### Skills
 
@@ -112,15 +112,19 @@
 
 | Skill | 分组 | 定位 | 版本 |
 |---|---|---|---|
-| [code-quality-check](./skills/development/code-quality-check/SKILL.md) | development | 快速代码质量检查和 lint 运行 | 1.0.0 |
+| [question-generator](./skills/question/question-generator/SKILL.md) | question | 题目生成与格式校验 | 1.0.0 |
+| [question-editor](./skills/question/question-editor/SKILL.md) | question | 题目编辑、删除与试卷编排 | 1.0.0 |
+| [question-search](./skills/question/question-search/SKILL.md) | question | 题库搜索与格式转换 | 1.0.0 |
 
-### Tools
+### MCP
 
-<a name="tools"></a>
+<a name="mcp"></a>
 
-| 目录 | 定位 |
-|---|---|
-| [path-validator](./tools/utilities/path-validator.js) | 路径安全性和有效性验证 |
+| MCP 服务 | 工具 | 定位 |
+|---|---|---|
+| question-bank-mcp | question_label | 查找题库知识点 |
+| | question_search | 在题库中搜索题目 |
+| | question_detail | 获取题目详情 |
 
 ---
 
@@ -129,6 +133,7 @@
 ```text
 agent-plugin/
 ├── package.json                    # npm 包配置
+├── mcp-config.json                 # MCP 服务配置
 ├── README.md                       # 本文件
 ├── AGENTS.md                       # 维护规则
 ├── LICENSE                         # MIT 许可证
@@ -141,10 +146,24 @@ agent-plugin/
 │   └── {domain}/
 │       └── {skill-name}/
 │           └── SKILL.md            # Skill 定义
-└── tools/
-    └── {domain}/
-        └── *.js                    # 自定义工具实现
+│           └── references/         # 参考文档
+│           └── scripts/            # 校验脚本
+└── mcp/
+    └── question-bank-server.js     # 题库 MCP 服务
 ```
+
+---
+
+## MCP 服务配置
+
+题库 MCP 服务需要以下环境变量：
+
+| 环境变量 | 必填 | 说明 | 示例 |
+|---|---|---|---|
+| `LAB_BASE_URL` | 否 | Lab 服务 API 地址 | `https://lab-test.cloudlab.top` |
+| `TOKEN` | 是 | 业务认证令牌 | — |
+| `PARTNER` | 否 | 合作方标识 | — |
+| `SIGN` | 否 | 签名 | — |
 
 ---
 
@@ -162,11 +181,11 @@ agent-plugin/
 2. 必须包含 frontmatter（name, version, description）
 3. 更新 README 索引
 
-### 添加新 Tool
+### 添加新 MCP 服务
 
-1. 在 `tools/{domain}/` 目录创建 `.js` 文件
-2. 导出标准工具接口（name, description, parameters, execute）
-3. 不硬编码本机路径
+1. 在 `mcp/` 目录创建服务脚本
+2. 在 `mcp-config.json` 中添加服务配置
+3. 更新 README 索引
 
 详见 [AGENTS.md](./AGENTS.md)
 
