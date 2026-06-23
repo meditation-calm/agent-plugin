@@ -7,8 +7,8 @@
 [![OpenCode](https://img.shields.io/badge/OpenCode-Plugin%20%7C%20Agents%20%7C%20Skills-6E40C9?logo=opensourceinitiative&logoColor=white)](https://opencode.ai)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Agents](https://img.shields.io/badge/agents-2-success.svg)](#agents)
-[![Skills](https://img.shields.io/badge/skills-5-blue.svg)](#skills)
-[![MCP](https://img.shields.io/badge/mcp-2-purple.svg)](#mcp)
+[![Skills](https://img.shields.io/badge/skills-6-blue.svg)](#skills)
+[![MCP](https://img.shields.io/badge/mcp-5-purple.svg)](#mcp)
 
 </div>
 
@@ -118,6 +118,7 @@
 | [question-search](./skills/question/question-search/SKILL.md) | question | 题库搜索与格式转换 | 1.0.0 |
 | [course-framework](./skills/course/course-framework/SKILL.md) | course | 课程元数据与目录结构 | 1.0.0 |
 | [course-content](./skills/course/course-content/SKILL.md) | course | 章节内容生成与知识点卡片嵌入 | 1.0.0 |
+| [course-save](./skills/course/course-save/SKILL.md) | course | 保存课程到平台 | 1.0.0 |
 
 ### MCP
 
@@ -129,6 +130,13 @@
 | | question_search | 在题库中搜索题目 |
 | | question_detail | 获取题目详情 |
 | knowledge-mcp | knowledge_card | 为章节生成知识点卡片 |
+| user-mcp | lab_query | 查询用户实验室列表 |
+| env-mcp | env_list | 查询可用实验环境模板列表 |
+| course-mcp | course_save | 创建课程记录 |
+| | fs_mkdir | 创建章节目录 |
+| | fs_write | 写入章节内容（自动提取活动） |
+| | activity_batch_save | 批量保存活动 |
+| | repo_refresh | 刷新课程仓库 |
 | knowledge-mcp | knowledge_card | 为章节生成知识点卡片 |
 
 ---
@@ -155,7 +163,10 @@ agent-plugin/
 │           └── scripts/            # 校验脚本
 └── mcp/
     ├── question-bank-server.js     # 题库 MCP 服务
-    └── knowledge-server.js         # 知识卡片 MCP 服务
+    ├── knowledge-server.js         # 知识卡片 MCP 服务
+    ├── user-server.js              # 用户相关 MCP 服务
+    ├── env-server.js               # 实验环境 MCP 服务
+    └── course-server.js            # 课程保存 MCP 服务
 ```
 
 ---
@@ -167,6 +178,8 @@ agent-plugin/
 | 环境变量 | 必填 | 说明 | 示例 |
 |---|---|---|---|
 | `LAB_BASE_URL` | 否 | Lab 服务 API 地址 | `https://lab-test.cloudlab.top` |
+| `OPENAPI_BASE_URL` | 否 | 课程文件操作 API 地址 | `https://openapi-test.cloudlab.top` |
+| `PTY_BASE_URL` | 否 | 实验环境模板 API 地址 | `https://pty-test.cloudlab.top` |
 | `KNOWLEDGE_BASE_URL` | 否 | 知识引擎 API 地址 | `https://ai-engine-test.cloudlab.top` |
 | `TOKEN` | 是 | 业务认证令牌 | — |
 | `PARTNER` | 否 | 合作方标识 | — |
