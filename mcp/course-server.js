@@ -29,13 +29,13 @@ const pakoCompress = (data) => {
 
 const parseContentActivities = (content) => {
   const activities = [];
-  const regex = /```(question|validate)\s*([\s\S]*?)```\{\{active\}\}/g;
+  const regex = /```(question|validate)\s*(?:\{\{active\}\})?\s*([\s\S]*?)```(?:\{\{active\}\})?/g;
   const newContent = content.replace(regex, (match, type, jsonContent) => {
     try {
       const json = JSON.parse(jsonContent.trim());
       json.id = json.id || `activity-${crypto.randomUUID()}`;
       activities.push(json);
-      return `\`\`\`${type}\n${JSON.stringify({ id: json.id })}\n\`\`\`{{active}}`;
+      return `\`\`\`${type}\n${JSON.stringify({ id: json.id }, null, 2)}\n\`\`\`{{active}}`;
     } catch {
       return match;
     }
@@ -114,7 +114,7 @@ server.tool(
 
 server.tool(
   "fs_write",
-  "写入章节内容，自动提取活动(question/validate代码块)并替换为ID引用。返回提取的活动列表，后续需调用activity_batch_save保存",
+  "写入章节内容，自动提取活动(question/validate代码块)并替换为ID引用，同时保存活动。一步完成内容写入和活动保存",
   {
     repo: z.string().describe("课程仓库标识"),
     path: z.string().describe("章节路径(fs_mkdir创建的path)"),
@@ -124,62 +124,39 @@ server.tool(
     try {
       const { content: cleanedContent, activities } = parseContentActivities(content);
       const base64Data = Buffer.from(cleanedContent, "utf-8").toString("base64");
-      const res = await openapiAxios.post("/fs/write", {
+      const writeRes = await openapiAxios.post("/fs/write", {
         encoding: "base64",
         data: base64Data,
       }, {
         params: { repo, path, file: "index.md" },
         headers: getAuthHeaders(),
       });
+      if (activities.length > 0) {
+        const encodeData = pakoCompress(JSON.stringify({
+          file: "activity.json",
+          activities,
+        }));
+        await openapiAxios.post("/activity/batchSave", {
+          requestId: crypto.randomUUID(),
+          encodeData,
+        }, {
+          params: { repo, path },
+          headers: { ...getAuthHeaders(), EncodeScheme: "PAKO" },
+        });
+      }
       return {
         content: [{
           type: "text",
           text: JSON.stringify({
-            writeResult: res.data,
-            activities: activities,
+            writeResult: writeRes.data,
             activityCount: activities.length,
+            activitiesSaved: activities.length > 0,
           }, null, 2),
         }],
       };
     } catch (error) {
       return {
         content: [{ type: "text", text: `写入章节内容失败: ${error.message}` }],
-        isError: true,
-      };
-    }
-  }
-);
-
-server.tool(
-  "activity_batch_save",
-  "批量保存活动(题目/编程题)，PAKO压缩后上传",
-  {
-    repo: z.string().describe("课程仓库标识"),
-    path: z.string().describe("章节路径"),
-    activities: z.array(z.object({ id: z.string() }).passthrough()).describe("活动列表(fs_write返回的activities)"),
-  },
-  async ({ repo, path, activities }) => {
-    try {
-      const encodeData = pakoCompress(JSON.stringify({
-        file: "activity.json",
-        activities,
-      }));
-      await openapiAxios.post("/activity/batchSave", {
-        requestId: crypto.randomUUID(),
-        encodeData,
-      }, {
-        params: { repo, path },
-        headers: { ...getAuthHeaders(), EncodeScheme: "PAKO" },
-      });
-      return {
-        content: [{
-          type: "text",
-          text: JSON.stringify({ success: true, savedCount: activities.length }, null, 2),
-        }],
-      };
-    } catch (error) {
-      return {
-        content: [{ type: "text", text: `保存活动失败: ${error.message}` }],
         isError: true,
       };
     }

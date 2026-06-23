@@ -14,8 +14,7 @@ description: "课程保存技能，将本地生成的课程内容（元数据、
 |---|---|---|
 | `course_save` | 创建课程记录 | `labCode`, `name`, `remark`, `template` |
 | `fs_mkdir` | 创建章节目录 | `repo`, `parent`, `path`, `title`, `index`, `category`, `type` |
-| `fs_write` | 写入章节内容（自动提取活动） | `repo`, `path`, `content` |
-| `activity_batch_save` | 批量保存活动 | `repo`, `path`, `activities` |
+| `fs_write` | 写入章节内容（自动提取活动并保存） | `repo`, `path`, `content` |
 | `repo_refresh` | 刷新课程仓库 | `repo` |
 
 ## 工作流程
@@ -48,20 +47,14 @@ description: "课程保存技能，将本地生成的课程内容（元数据、
 - `title`: 节点名称，去除特殊字符
 - `index`: 节点在同级中的排序序号
 
-### 3. 写入章节内容
+### 3. 写入章节内容（含活动保存）
 
 对每个有内容文件的节点，调用 `fs_write`：
-- 传入原始 markdown 内容（含 ```question/validate```{{active}} 活动代码块）
-- 工具自动提取活动并替换为 ID 引用
-- 返回提取的 `activities` 数组
+- 传入原始 markdown 内容（含 ```question/validate``` 活动代码块）
+- 工具一步完成：提取活动 → 替换为 ID 引用 → 写入内容 → PAKO 压缩保存活动
+- 返回写入结果和活动保存状态
 
-### 4. 保存活动
-
-如果 `fs_write` 返回了活动列表（`activityCount > 0`），调用 `activity_batch_save`：
-- 传入 `fs_write` 返回的 `activities` 数组
-- 工具自动 PAKO 压缩后上传
-
-### 5. 刷新课程仓库
+### 4. 刷新课程仓库
 
 所有章节写入完成后，调用 `repo_refresh` 刷新课程导航结构。
 
@@ -69,6 +62,6 @@ description: "课程保存技能，将本地生成的课程内容（元数据、
 
 1. 必须先调用 `course_save` 获取 `repo`，再执行后续步骤
 2. 章节目录必须按 toc.md 的顺序逐级创建
-3. `fs_write` 返回的活动列表必须立即用 `activity_batch_save` 保存
+3. 每个章节只需调用一次 `fs_write`，内容写入和活动保存一步完成
 4. 最后必须调用 `repo_refresh` 刷新仓库
 5. 特殊字符（`/ : * ? \` ' " < > |`）必须从路径和标题中去除

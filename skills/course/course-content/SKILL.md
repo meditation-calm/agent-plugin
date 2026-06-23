@@ -58,10 +58,13 @@ description: "课程内容生成技能，按目录结构生成专业章节内容
 - 嵌入顺序应与章节内容的逻辑流一致
 
 #### 题目嵌入规则
-- 选择题包裹在 ```question ... ```{{active}} 代码块中
-- 编程题包裹在 ```validate ... ```{{active}} 代码块中
+- 选择题：```question JSON ```{{active}}
+- 编程题：```validate JSON ```{{active}}
+- {{active}} 写在三个闭合反引号后面，不是写在 question 或 validate 后面
+- 正确：```question {JSON} ```{{active}}
+- 错误：```question{{active}} {JSON} ```
 - 题目 JSON 必须可被 JSON.parse() 成功解析
-- 完整格式规范参见 [question-format.md](references/question-format.md)
+- 完整格式规范和字段说明参见 [question-format.md](references/question-format.md)
 
 ### 4. 保存章节内容
 

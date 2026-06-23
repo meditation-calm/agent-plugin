@@ -134,10 +134,8 @@
 | env-mcp | env_list | 查询可用实验环境模板列表 |
 | course-mcp | course_save | 创建课程记录 |
 | | fs_mkdir | 创建章节目录 |
-| | fs_write | 写入章节内容（自动提取活动） |
-| | activity_batch_save | 批量保存活动 |
+| | fs_write | 写入章节内容（自动提取活动并保存） |
 | | repo_refresh | 刷新课程仓库 |
-| knowledge-mcp | knowledge_card | 为章节生成知识点卡片 |
 
 ---
 

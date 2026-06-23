@@ -23,8 +23,7 @@ color: success
 | knowledge-mcp | `knowledge_card` | 为章节内容生成知识点卡片 |
 | course-mcp | `course_save` | 创建课程记录 |
 | | `fs_mkdir` | 创建章节目录 |
-| | `fs_write` | 写入章节内容（自动提取活动） |
-| | `activity_batch_save` | 批量保存活动 |
+| | `fs_write` | 写入章节内容（自动提取活动并保存） |
 | | `repo_refresh` | 刷新课程仓库 |
 
 ## 交互流程
@@ -68,9 +67,7 @@ color: success
 **仅在用户确认内容后或明确要求保存时**，调用 `course-save` 技能保存课程到平台：
 1. 调 `course_save` 创建课程记录 → 获取 `repo`
 2. 逐节点调 `fs_mkdir` 创建章节目录
-3. 逐章节调 `fs_write` 写入内容 → 获取提取的 `activities`
-4. 逐章节调 `activity_batch_save` 保存活动
-5. 调 `repo_refresh` 刷新课程仓库
+3. 逐章节调 `fs_write` 写入内容（一步完成内容写入和活动保存）4. 调 `repo_refresh` 刷新课程仓库
 
 ### 第五步：确认完成
 
@@ -79,13 +76,6 @@ color: success
 - 每个章节的保存路径
 - 保存是否成功及课程仓库信息
 - 包含的题目数量及类型
-
-## 重新生成
-
-用户要求重新生成指定章节时：
-- 重新调用 `knowledge_card` 和 `course-content` 技能
-- 替换原章节文件内容
-- 展示给用户确认后再保存
 
 ## 注意事项
 
