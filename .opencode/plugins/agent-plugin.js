@@ -82,11 +82,7 @@ const discoverComponents = (pluginRoot, type) => {
   for (const relativePath of paths) {
     const fullPath = path.join(pluginRoot, relativePath);
     if (fs.existsSync(fullPath)) {
-      if (type === 'skill') {
-        scanSkillsRecursive(fullPath, components);
-      } else {
-        scanDirectory(fullPath, type, components);
-      }
+      scanRecursive(fullPath, type, components);
       break;
     }
   }
@@ -94,7 +90,7 @@ const discoverComponents = (pluginRoot, type) => {
   return components;
 };
 
-const scanSkillsRecursive = (dirPath, results) => {
+const scanRecursive = (dirPath, type, results) => {
   try {
     const entries = fs.readdirSync(dirPath);
     for (const entry of entries) {
@@ -102,40 +98,23 @@ const scanSkillsRecursive = (dirPath, results) => {
       const stats = fs.statSync(entryPath);
 
       if (stats.isDirectory()) {
-        const skillMdPath = path.join(entryPath, 'SKILL.md');
-        if (fs.existsSync(skillMdPath)) {
-          results.push({ type: 'skill', path: entryPath, name: entry });
-        } else {
-          // 递归搜索子目录（支持 skills/<domain>/<skill-name>/SKILL.md）
-          scanSkillsRecursive(entryPath, results);
-        }
-      }
-    }
-  } catch {
-    // 忽略错误，保持健壮性
-  }
-};
-
-const scanDirectory = (dirPath, type, results) => {
-  try {
-    const entries = fs.readdirSync(dirPath);
-    for (const entry of entries) {
-      const entryPath = path.join(dirPath, entry);
-      const stats = fs.statSync(entryPath);
-
-      if (type === 'skill') {
-        if (stats.isDirectory()) {
+        if (type === 'skill') {
           const skillMdPath = path.join(entryPath, 'SKILL.md');
           if (fs.existsSync(skillMdPath)) {
             results.push({ type: 'skill', path: entryPath, name: entry });
+          } else {
+            // 递归搜索子目录（支持 skills/<domain>/<skill-name>/SKILL.md）
+            scanRecursive(entryPath, type, results);
           }
+        } else if (type === 'tool') {
+          // tools 目录下可能有子目录，递归搜索
+          scanRecursive(entryPath, type, results);
         }
-      } else if (type === 'agent') {
-        if (stats.isFile() && entry.endsWith('.md')) {
+      } else {
+        // 文件匹配
+        if (type === 'agent' && entry.endsWith('.md')) {
           results.push({ type: 'agent', path: entryPath, name: path.basename(entry, '.md') });
-        }
-      } else if (type === 'tool') {
-        if (stats.isFile() && (entry.endsWith('.js') || entry.endsWith('.mjs'))) {
+        } else if (type === 'tool' && (entry.endsWith('.js') || entry.endsWith('.mjs'))) {
           results.push({ type: 'tool', path: entryPath, name: path.basename(entry, path.extname(entry)) });
         }
       }
@@ -226,7 +205,7 @@ export const AgentPlugin = async ({ client, directory }) => {
 </AGENT_PLUGIN_LOADED>`;
 
   return {
-    'config': async (config) => {
+    config: async (config) => {
       if (skillPaths.length > 0) {
         if (!config.skills) config.skills = {};
         if (!config.skills.paths) config.skills.paths = [];
