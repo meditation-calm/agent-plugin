@@ -160,10 +160,10 @@ export const AgentPlugin = async ({ client, directory }) => {
     const content = fs.readFileSync(a.path, 'utf-8');
     const { frontmatter } = extractFrontmatter(content);
     agentConfigs[a.name] = {
-      path: a.path,
       description: frontmatter.description || '',
       mode: frontmatter.mode || 'subagent',
       color: frontmatter.color || 'default',
+      prompt: `{file:${a.path}}`,
     };
   });
 
@@ -214,8 +214,8 @@ export const AgentPlugin = async ({ client, directory }) => {
       }
 
       if (Object.keys(agentConfigs).length > 0) {
-        if (!config.agents) config.agents = {};
-        Object.assign(config.agents, agentConfigs);
+        if (!config.agent) config.agent = {};
+        Object.assign(config.agent, agentConfigs);
       }
 
       if (toolNames.length > 0) {
