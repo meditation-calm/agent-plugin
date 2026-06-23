@@ -204,6 +204,8 @@ export const AgentPlugin = async ({ client, directory }) => {
 - Tools: ${tools.map(t => t.name).join(', ') || '无'}
 </AGENT_PLUGIN_LOADED>`;
 
+  const getBootstrapContent = () => bootstrapContent;
+
   return {
     config: async (config) => {
       if (skillPaths.length > 0) {
@@ -223,11 +225,17 @@ export const AgentPlugin = async ({ client, directory }) => {
       }
     },
 
-    'experimental.chat.system.transform': async (_input, output) => {
-      output.system ||= [];
-      output.system.push(bootstrapContent);
+    'experimental.chat.messages.transform': async (_input, output) => {
+      const bootstrap = getBootstrapContent();
+      if (bootstrap && output.messages.length) {
+        const firstUser = output.messages.find(m => m.info.role === 'user');
+        if (firstUser && firstUser.parts.length) {
+          if (!firstUser.parts.some(p => p.type === 'text' && p.text.includes('AGENT_PLUGIN_LOADED'))) {
+            firstUser.parts.unshift({ ...firstUser.parts[0], type: 'text', text: bootstrap });
+          }
+        }
+      }
     },
   };
 };
 
-export default AgentPlugin;
