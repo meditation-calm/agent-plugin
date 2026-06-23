@@ -82,12 +82,38 @@ const discoverComponents = (pluginRoot, type) => {
   for (const relativePath of paths) {
     const fullPath = path.join(pluginRoot, relativePath);
     if (fs.existsSync(fullPath)) {
-      scanDirectory(fullPath, type, components);
+      if (type === 'skill') {
+        scanSkillsRecursive(fullPath, components);
+      } else {
+        scanDirectory(fullPath, type, components);
+      }
       break;
     }
   }
 
   return components;
+};
+
+const scanSkillsRecursive = (dirPath, results) => {
+  try {
+    const entries = fs.readdirSync(dirPath);
+    for (const entry of entries) {
+      const entryPath = path.join(dirPath, entry);
+      const stats = fs.statSync(entryPath);
+
+      if (stats.isDirectory()) {
+        const skillMdPath = path.join(entryPath, 'SKILL.md');
+        if (fs.existsSync(skillMdPath)) {
+          results.push({ type: 'skill', path: entryPath, name: entry });
+        } else {
+          // 递归搜索子目录（支持 skills/<domain>/<skill-name>/SKILL.md）
+          scanSkillsRecursive(entryPath, results);
+        }
+      }
+    }
+  } catch {
+    // 忽略错误，保持健壮性
+  }
 };
 
 const scanDirectory = (dirPath, type, results) => {
