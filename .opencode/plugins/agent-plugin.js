@@ -17,6 +17,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 // ============ 配置常量 ============
 const PLUGIN_NAME = 'agent-plugin';
+const MCP_CONFIG_FILE = 'mcp-config.json';
 
 // ============ 路径工具 ============
 const normalizePath = (p, homeDir) => {
@@ -38,6 +39,33 @@ const getConfigDir = () => {
 
 const getRegistryPath = () => {
   return path.join(getConfigDir(), 'plugins', 'agent-plugin-registry.json');
+};
+
+// ============ MCP 注册 ============
+const registerMcp = (pluginRoot, config) => {
+  const mcpConfigPath = path.join(pluginRoot, MCP_CONFIG_FILE);
+  if (!fs.existsSync(mcpConfigPath)) return;
+
+  try {
+    const mcpConfig = JSON.parse(fs.readFileSync(mcpConfigPath, 'utf-8'));
+    if (!config.mcp) config.mcp = {};
+
+    for (const [name, mcpDef] of Object.entries(mcpConfig)) {
+      if (config.mcp[name]) continue;
+
+      const resolvedDef = { ...mcpDef };
+      if (Array.isArray(resolvedDef.command)) {
+        resolvedDef.command = resolvedDef.command.map((arg) => {
+          if (typeof arg === 'string' && arg.startsWith('./')) {
+            return path.resolve(pluginRoot, arg);
+          }
+          return arg;
+        });
+      }
+
+      config.mcp[name] = resolvedDef;
+    }
+  } catch {}
 };
 
 // ============ 注册表管理 ============
@@ -202,12 +230,18 @@ export const AgentPlugin = async ({ client, directory }) => {
   registry.lastUpdate = Date.now();
   saveRegistry(registry);
 
+  const mcpConfigPath = path.join(pluginRoot, MCP_CONFIG_FILE);
+  const mcpNames = fs.existsSync(mcpConfigPath)
+    ? Object.keys(JSON.parse(fs.readFileSync(mcpConfigPath, 'utf-8')))
+    : [];
+
   const bootstrapContent = `
 <AGENT_PLUGIN_LOADED>
 已加载 agent-plugin 组件：
 - Skills: ${skills.map(s => s.name).join(', ') || '无'}
 - Agents: ${agents.map(a => a.name).join(', ') || '无'}
 - Tools: ${tools.map(t => t.name).join(', ') || '无'}
+- MCP: ${mcpNames.join(', ') || '无'}
 </AGENT_PLUGIN_LOADED>`;
 
   const getBootstrapContent = () => bootstrapContent;
@@ -231,6 +265,8 @@ export const AgentPlugin = async ({ client, directory }) => {
           config.tools[name] = true;
         });
       }
+
+      registerMcp(pluginRoot, config);
     },
 
     'experimental.chat.messages.transform': async (_input, output) => {

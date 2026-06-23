@@ -1,0 +1,7 @@
+{
+  "question-bank-mcp": {
+    "type": "local",
+    "command": ["node", "./mcp/question-bank-server.js"],
+    "enabled": true
+  }
+}

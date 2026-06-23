@@ -20,5 +20,10 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/ArchAIHarness/agent-plugin.git"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.29.0",
+    "axios": "^1.9.0",
+    "zod": "^3.25.0"
   }
 }
