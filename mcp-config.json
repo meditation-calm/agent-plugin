@@ -3,5 +3,10 @@
     "type": "local",
     "command": ["node", "./mcp/question-bank-server.js"],
     "enabled": true
+  },
+  "knowledge-mcp": {
+    "type": "local",
+    "command": ["node", "./mcp/knowledge-server.js"],
+    "enabled": true
   }
 }

@@ -6,9 +6,9 @@
 
 [![OpenCode](https://img.shields.io/badge/OpenCode-Plugin%20%7C%20Agents%20%7C%20Skills-6E40C9?logo=opensourceinitiative&logoColor=white)](https://opencode.ai)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Agents](https://img.shields.io/badge/agents-1-success.svg)](#agents)
-[![Skills](https://img.shields.io/badge/skills-3-blue.svg)](#skills)
-[![MCP](https://img.shields.io/badge/mcp-1-purple.svg)](#mcp)
+[![Agents](https://img.shields.io/badge/agents-2-success.svg)](#agents)
+[![Skills](https://img.shields.io/badge/skills-5-blue.svg)](#skills)
+[![MCP](https://img.shields.io/badge/mcp-2-purple.svg)](#mcp)
 
 </div>
 
@@ -104,7 +104,8 @@
 
 | Agent | 定位 |
 |---|---|
-| [question-generator-agent](./agents/question-generator-agent.md) | 智能出题助手，生成、校验、保存和编排题目 |
+| [question-generator-agent](./agents/question-generator-agent.md) | 智能出题助手，生成、校验、编排题目 |
+| [course-generator-agent](./agents/course-generator-agent.md) | 课程生成助手，编排框架、卡片与章节内容 |
 
 ### Skills
 
@@ -115,6 +116,8 @@
 | [question-generator](./skills/question/question-generator/SKILL.md) | question | 题目生成与格式校验 | 1.0.0 |
 | [question-editor](./skills/question/question-editor/SKILL.md) | question | 题目编辑、删除与试卷编排 | 1.0.0 |
 | [question-search](./skills/question/question-search/SKILL.md) | question | 题库搜索与格式转换 | 1.0.0 |
+| [course-framework](./skills/course/course-framework/SKILL.md) | course | 课程元数据与目录结构 | 1.0.0 |
+| [course-content](./skills/course/course-content/SKILL.md) | course | 章节内容生成与知识点卡片嵌入 | 1.0.0 |
 
 ### MCP
 
@@ -125,6 +128,8 @@
 | question-bank-mcp | question_label | 查找题库知识点 |
 | | question_search | 在题库中搜索题目 |
 | | question_detail | 获取题目详情 |
+| knowledge-mcp | knowledge_card | 为章节生成知识点卡片 |
+| knowledge-mcp | knowledge_card | 为章节生成知识点卡片 |
 
 ---
 
@@ -149,7 +154,8 @@ agent-plugin/
 │           └── references/         # 参考文档
 │           └── scripts/            # 校验脚本
 └── mcp/
-    └── question-bank-server.js     # 题库 MCP 服务
+    ├── question-bank-server.js     # 题库 MCP 服务
+    └── knowledge-server.js         # 知识卡片 MCP 服务
 ```
 
 ---
@@ -161,6 +167,7 @@ agent-plugin/
 | 环境变量 | 必填 | 说明 | 示例 |
 |---|---|---|---|
 | `LAB_BASE_URL` | 否 | Lab 服务 API 地址 | `https://lab-test.cloudlab.top` |
+| `KNOWLEDGE_BASE_URL` | 否 | 知识引擎 API 地址 | `https://ai-engine-test.cloudlab.top` |
 | `TOKEN` | 是 | 业务认证令牌 | — |
 | `PARTNER` | 否 | 合作方标识 | — |
 | `SIGN` | 否 | 签名 | — |

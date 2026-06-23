@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 """校验填空题格式"""
 import json
-import sys
+import os
 import re
+import sys
 
 FILL_BLANK_PATTERN = r'<input\s+class="w-e-fill-blank"[^>]*>'
 
@@ -60,10 +61,14 @@ if __name__ == '__main__':
         print(json.dumps({"success": False, "errors": ["请提供题目JSON文件或JSON字符串"]}))
         sys.exit(1)
     
+    input_arg = sys.argv[1]
     try:
-        with open(sys.argv[1], 'r', encoding='utf-8') as f:
-            question = json.load(f)
-    except json.JSONDecodeError as e:
+        if os.path.isfile(input_arg):
+            with open(input_arg, 'r', encoding='utf-8') as f:
+                question = json.load(f)
+        else:
+            question = json.loads(input_arg)
+    except (json.JSONDecodeError, OSError) as e:
         print(json.dumps({"success": False, "errors": [f"JSON格式错误: {str(e)}"]}))
         sys.exit(1)
     
