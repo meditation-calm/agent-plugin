@@ -158,15 +158,20 @@ export const AgentPlugin = async ({ client, directory }) => {
   const agentConfigs = {};
   agents.forEach(a => {
     const content = fs.readFileSync(a.path, 'utf-8');
-    const { frontmatter } = extractFrontmatter(content);
+    const { frontmatter, body } = extractFrontmatter(content);
     const validColors = ['primary', 'secondary', 'accent', 'success', 'warning', 'error', 'info'];
-    const color = frontmatter.color || 'accent';
-    agentConfigs[a.name] = {
-      description: frontmatter.description || '',
+    const agentConf = {
+      description: frontmatter.description || `${a.name} agent`,
       mode: frontmatter.mode || 'subagent',
-      color: validColors.includes(color) ? color : (color.startsWith('#') && color.length === 7 ? color : 'accent'),
-      prompt: `{file:${a.path}}`,
+      prompt: body,
     };
+    if (frontmatter.color) {
+      const c = frontmatter.color;
+      if (validColors.includes(c) || (c.startsWith('#') && c.length === 7)) {
+        agentConf.color = c;
+      }
+    }
+    agentConfigs[a.name] = agentConf;
   });
 
   const toolNames = tools.map(t => t.name);
