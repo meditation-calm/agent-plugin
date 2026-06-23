@@ -177,7 +177,12 @@ export const AgentPlugin = async ({ client, directory }) => {
 
   // 更新注册表
   const allContent = [...skills, ...agents, ...tools]
-    .map(c => fs.readFileSync(c.path, 'utf-8'))
+    .map(c => {
+      if (c.type === 'skill') {
+        return fs.readFileSync(path.join(c.path, 'SKILL.md'), 'utf-8');
+      }
+      return fs.readFileSync(c.path, 'utf-8');
+    })
     .join('');
   const hash = computeHash(allContent);
 
