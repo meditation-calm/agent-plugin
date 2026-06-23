@@ -1,48 +1,228 @@
 /**
  * agent-plugin - 场景化智能体插件入口
  *
- * 遵循 OpenCode 插件约定：
- * - 导出 default function (config) { ... }
- * - 修改 config 添加 agents、skills、tools
- * - 不覆盖用户已有配置
+ * 功能：
+ * - 本地组件自动发现与注册（skills/agents/tools）
+ * - 通过 OpenCode 插件系统加载（远程 clone 由 OpenCode 处理）
+ * - 注册表管理（registry）跟踪组件版本
  */
 
-const fs = require('fs');
-const path = require('path');
+import path from 'path';
+import fs from 'fs';
+import os from 'os';
+import { fileURLToPath } from 'url';
+import { createHash } from 'crypto';
 
-module.exports = function plugin(config) {
-  // Add skills paths
-  const skillsDir = path.join(__dirname, 'skills');
-  if (fs.existsSync(skillsDir)) {
-    if (!config.skills) {
-      config.skills = {};
-    }
-    if (!config.skills.paths) {
-      config.skills.paths = [];
-    }
-    config.skills.paths.push(skillsDir);
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+
+// ============ 配置常量 ============
+const PLUGIN_NAME = 'agent-plugin';
+
+// ============ 路径工具 ============
+const normalizePath = (p, homeDir) => {
+  if (!p || typeof p !== 'string') return null;
+  let normalized = p.trim();
+  if (normalized.startsWith('~/')) {
+    normalized = path.join(homeDir, normalized.slice(2));
+  } else if (normalized === '~') {
+    normalized = homeDir;
   }
-
-  // Auto-discover and register agents
-  const agentsDir = path.join(__dirname, 'agents');
-  if (fs.existsSync(agentsDir)) {
-    if (!config.agents) {
-      config.agents = {};
-    }
-    const agentFiles = fs.readdirSync(agentsDir).filter(f => f.endsWith('.md'));
-    agentFiles.forEach(file => {
-      const name = path.basename(file, '.md');
-      const agentPath = path.join(agentsDir, file);
-      config.agents[name] = agentPath;
-    });
-  }
-
-  // Register custom tools if any exist
-  const toolsDir = path.join(__dirname, 'tools');
-  if (fs.existsSync(toolsDir) && !config.tools) {
-    // Tools are discovered automatically by OpenCode from tools/ directory
-    // No explicit registration needed for built-in tools
-  }
-
-  return config;
+  return path.resolve(normalized);
 };
+
+const getConfigDir = () => {
+  const homeDir = os.homedir();
+  const envConfigDir = normalizePath(process.env.OPENCODE_CONFIG_DIR, homeDir);
+  return envConfigDir || path.join(homeDir, '.config', 'opencode');
+};
+
+const getRegistryPath = () => {
+  return path.join(getConfigDir(), 'plugins', 'agent-plugin-registry.json');
+};
+
+// ============ 注册表管理 ============
+const loadRegistry = () => {
+  const registryPath = getRegistryPath();
+  if (!fs.existsSync(registryPath)) {
+    return { version: 1, plugins: {}, lastUpdate: 0 };
+  }
+  try {
+    const content = fs.readFileSync(registryPath, 'utf-8');
+    return JSON.parse(content);
+  } catch {
+    return { version: 1, plugins: {}, lastUpdate: 0 };
+  }
+};
+
+const saveRegistry = (registry) => {
+  const registryPath = getRegistryPath();
+  const dir = path.dirname(registryPath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  const tmpPath = `${registryPath}.tmp`;
+  fs.writeFileSync(tmpPath, JSON.stringify(registry, null, 2), 'utf-8');
+  fs.renameSync(tmpPath, registryPath);
+};
+
+const computeHash = (content) => {
+  return createHash('sha256').update(content).digest('hex');
+};
+
+// ============ 组件发现 ============
+const discoverComponents = (pluginRoot, type) => {
+  const components = [];
+  const searchPaths = {
+    skill: ['.opencode/skills', '.claude/skills', 'skills'],
+    agent: ['.opencode/agents', '.claude/agents', 'agents'],
+    tool: ['.opencode/tools', '.claude/tools', 'tools'],
+  };
+
+  const paths = searchPaths[type] || [];
+  for (const relativePath of paths) {
+    const fullPath = path.join(pluginRoot, relativePath);
+    if (fs.existsSync(fullPath)) {
+      scanDirectory(fullPath, type, components);
+      break;
+    }
+  }
+
+  return components;
+};
+
+const scanDirectory = (dirPath, type, results) => {
+  try {
+    const entries = fs.readdirSync(dirPath);
+    for (const entry of entries) {
+      const entryPath = path.join(dirPath, entry);
+      const stats = fs.statSync(entryPath);
+
+      if (type === 'skill') {
+        if (stats.isDirectory()) {
+          const skillMdPath = path.join(entryPath, 'SKILL.md');
+          if (fs.existsSync(skillMdPath)) {
+            results.push({ type: 'skill', path: entryPath, name: entry });
+          }
+        }
+      } else if (type === 'agent') {
+        if (stats.isFile() && entry.endsWith('.md')) {
+          results.push({ type: 'agent', path: entryPath, name: path.basename(entry, '.md') });
+        }
+      } else if (type === 'tool') {
+        if (stats.isFile() && (entry.endsWith('.js') || entry.endsWith('.mjs'))) {
+          results.push({ type: 'tool', path: entryPath, name: path.basename(entry, path.extname(entry)) });
+        }
+      }
+    }
+  } catch {
+    // 忽略错误，保持健壮性
+  }
+};
+
+// ============ 前端解析 ============
+const extractFrontmatter = (content) => {
+  const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
+  if (!match) return { frontmatter: {}, content };
+
+  const frontmatterStr = match[1];
+  const body = match[2];
+  const frontmatter = {};
+
+  for (const line of frontmatterStr.split('\n')) {
+    const colonIdx = line.indexOf(':');
+    if (colonIdx > 0) {
+      const key = line.slice(0, colonIdx).trim();
+      const value = line.slice(colonIdx + 1).trim().replace(/^["']|["']$/g, '');
+      frontmatter[key] = value;
+    }
+  }
+
+  return { frontmatter, content: body };
+};
+
+// ============ 插件主入口 ============
+export const AgentPlugin = async ({ client, directory }) => {
+  const pluginRoot = __dirname;
+
+  const skills = discoverComponents(pluginRoot, 'skill');
+  const agents = discoverComponents(pluginRoot, 'agent');
+  const tools = discoverComponents(pluginRoot, 'tool');
+
+  const skillPaths = skills.map(s => s.path);
+
+  const agentConfigs = {};
+  agents.forEach(a => {
+    const content = fs.readFileSync(a.path, 'utf-8');
+    const { frontmatter } = extractFrontmatter(content);
+    agentConfigs[a.name] = {
+      path: a.path,
+      description: frontmatter.description || '',
+      mode: frontmatter.mode || 'subagent',
+      color: frontmatter.color || 'default',
+    };
+  });
+
+  const toolConfigs = {};
+  tools.forEach(t => {
+    toolConfigs[t.name] = {
+      path: t.path,
+      description: `${t.name} custom tool`,
+    };
+  });
+
+  // 更新注册表
+  const allContent = [...skills, ...agents, ...tools]
+    .map(c => fs.readFileSync(c.path, 'utf-8'))
+    .join('');
+  const hash = computeHash(allContent);
+
+  const registry = loadRegistry();
+  registry.plugins[PLUGIN_NAME] = {
+    name: PLUGIN_NAME,
+    hash,
+    source: { type: 'local', path: pluginRoot },
+    installedAt: new Date().toISOString(),
+    components: {
+      skills: skills.map(s => s.name),
+      agents: agents.map(a => a.name),
+      tools: tools.map(t => t.name),
+    },
+  };
+  registry.lastUpdate = Date.now();
+  saveRegistry(registry);
+
+  const bootstrapContent = `
+<AGENT_PLUGIN_LOADED>
+已加载 agent-plugin 组件：
+- Skills: ${skills.map(s => s.name).join(', ') || '无'}
+- Agents: ${agents.map(a => a.name).join(', ') || '无'}
+- Tools: ${tools.map(t => t.name).join(', ') || '无'}
+</AGENT_PLUGIN_LOADED>`;
+
+  return {
+    'config': async (config) => {
+      if (skillPaths.length > 0) {
+        if (!config.skills) config.skills = {};
+        if (!config.skills.paths) config.skills.paths = [];
+        config.skills.paths.push(...skillPaths);
+      }
+
+      if (Object.keys(agentConfigs).length > 0) {
+        if (!config.agents) config.agents = {};
+        Object.assign(config.agents, agentConfigs);
+      }
+
+      if (Object.keys(toolConfigs).length > 0) {
+        if (!config.tools) config.tools = {};
+        Object.assign(config.tools, toolConfigs);
+      }
+    },
+
+    'experimental.chat.system.transform': async (_input, output) => {
+      output.system ||= [];
+      output.system.push(bootstrapContent);
+    },
+  };
+};
+
+export default AgentPlugin;

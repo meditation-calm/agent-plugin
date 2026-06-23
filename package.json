@@ -1,7 +1,8 @@
 {
   "name": "agent-plugin",
   "version": "1.0.0",
-  "description": "场景化智能体插件集合：agents/skills/tools 插拔式扩展",
+  "description": "场景化智能体插件集合：支持远程加载 skills、agents、tools 的插拔式扩展",
+  "type": "module",
   "main": ".opencode/plugins/agent-plugin.js",
   "scripts": {
     "verify": "node --check .opencode/plugins/agent-plugin.js && echo \"Verification passed\""
@@ -10,8 +11,14 @@
     "opencode",
     "opencode-plugin",
     "agent",
-    "plugins"
+    "plugins",
+    "remote-loading",
+    "auto-update"
   ],
   "author": "ArchAIHarness",
-  "license": "MIT"
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ArchAIHarness/agent-plugin.git"
+  }
 }
