@@ -6,7 +6,7 @@
 
 本仓库是场景化智能体插件集合，遵循 OpenCode 官方插件格式：
 
-- OpenCode 插件入口：`opencode-plugin.js`
+- OpenCode 插件入口：`.opencode/plugins/agent-plugin.js`
 - OpenCode Agent 定义：`agents/*.md`
 - OpenCode Skill 定义：`skills/**/SKILL.md`
 - 自定义工具：`tools/**`
@@ -20,7 +20,7 @@
 | `AGENTS.md` | 维护本仓库的规则 | 否 |
 | `README.md` | 仓库说明、安装、索引 | 否 |
 | `package.json` | git/npm 插件包入口 | 被 OpenCode 用于定位插件 main |
-| `opencode-plugin.js` | OpenCode 插件入口 | 是 |
+| `.opencode/plugins/agent-plugin.js` | OpenCode 插件入口 | 是 |
 | `agents/` | 可注入 OpenCode 的场景化 Agent 定义 | 是 |
 | `skills/` | 可被 OpenCode skill tool 加载的 Skill 定义 | 是 |
 | `tools/` | 自定义工具脚本或资源 | 视插件实现 |

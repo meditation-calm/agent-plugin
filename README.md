@@ -21,7 +21,7 @@
 **工作原理：**
 - OpenCode 通过 `plugin` 配置自动 clone 远程仓库
 - 插件加载时自动发现 skills/agents/tools 并注册
-- 更新由 OpenCode 重启或 `opencode-marketplace update` 触发
+- 更新由 OpenCode 重启触发
 
 ---
 
@@ -39,22 +39,6 @@
 ```
 
 重启 OpenCode 即可生效。
-
-### 方式 2：使用 opencode-marketplace CLI
-
-```bash
-# 安装到用户级别
-npx opencode-marketplace install https://github.com/ArchAIHarness/agent-plugin
-
-# 安装到项目级别
-npx opencode-marketplace install https://github.com/ArchAIHarness/agent-plugin --scope project
-
-# 更新插件
-npx opencode-marketplace update agent-plugin
-
-# 查看已安装插件
-npx opencode-marketplace list
-```
 
 ---
 
@@ -98,7 +82,6 @@ npx opencode-marketplace list
 | 方式 | 说明 |
 |---|---|
 | OpenCode 重启 | 重新拉取远程插件并加载最新版本 |
-| opencode-marketplace update | 手动触发更新检查 |
 | 注册表 | 记录组件哈希，用于版本追踪 |
 
 ### 注册表
@@ -146,7 +129,6 @@ npx opencode-marketplace list
 ```text
 agent-plugin/
 ├── package.json                    # npm 包配置
-├── plugin.json                     # 插件元数据
 ├── README.md                       # 本文件
 ├── AGENTS.md                       # 维护规则
 ├── LICENSE                         # MIT 许可证
@@ -195,7 +177,6 @@ agent-plugin/
 - [agent-master](https://github.com/ArchAIHarness/agent-master) - Agent 控制面服务
 - [agent-image](https://github.com/ArchAIHarness/agent-image) - 无头 OpenCode Runtime 镜像
 - [agent-image-webui](https://github.com/ArchAIHarness/agent-image-webui) - 带 WebUI 的 Runtime 镜像
-- [opencode-marketplace](https://github.com/ArchAIHarness/opencode-marketplace) - 插件市场 CLI 工具
 
 ---
 

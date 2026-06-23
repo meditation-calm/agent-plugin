@@ -142,7 +142,7 @@ const extractFrontmatter = (content) => {
 
 // ============ 插件主入口 ============
 export const AgentPlugin = async ({ client, directory }) => {
-  const pluginRoot = __dirname;
+  const pluginRoot = path.resolve(__dirname, '../..');
 
   const skills = discoverComponents(pluginRoot, 'skill');
   const agents = discoverComponents(pluginRoot, 'agent');
