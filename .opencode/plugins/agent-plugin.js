@@ -10,7 +10,7 @@
 import path from 'path';
 import fs from 'fs';
 import os from 'os';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import { createHash } from 'crypto';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
@@ -152,6 +152,25 @@ const scanRecursive = (dirPath, type, results) => {
   }
 };
 
+// ============ 工具动态加载 ============
+const loadToolDefinitions = async (toolFiles) => {
+  const toolDefs = {};
+  for (const t of toolFiles) {
+    try {
+      const mod = await import(pathToFileURL(t.path).href);
+      if (mod.default && typeof mod.default.execute === 'function') {
+        toolDefs[t.name] = mod.default;
+      }
+      for (const [name, value] of Object.entries(mod)) {
+        if (name !== 'default' && value && typeof value.execute === 'function') {
+          toolDefs[name] = value;
+        }
+      }
+    } catch {}
+  }
+  return toolDefs;
+};
+
 // ============ 前端解析 ============
 const extractFrontmatter = (content) => {
   const match = content.match(/^---\n([\s\S]*?)\n---\n([\s\S]*)$/);
@@ -202,7 +221,8 @@ export const AgentPlugin = async ({ client, directory }) => {
     agentConfigs[a.name] = agentConf;
   });
 
-  const toolNames = tools.map(t => t.name);
+  const toolDefs = await loadToolDefinitions(tools);
+  const toolNames = Object.keys(toolDefs);
 
   // 更新注册表
   const allContent = [...skills, ...agents, ...tools]
@@ -224,7 +244,7 @@ export const AgentPlugin = async ({ client, directory }) => {
     components: {
       skills: skills.map(s => s.name),
       agents: agents.map(a => a.name),
-      tools: tools.map(t => t.name),
+      tools: toolNames,
     },
   };
   registry.lastUpdate = Date.now();
@@ -240,7 +260,7 @@ export const AgentPlugin = async ({ client, directory }) => {
 已加载 agent-plugin 组件：
 - Skills: ${skills.map(s => s.name).join(', ') || '无'}
 - Agents: ${agents.map(a => a.name).join(', ') || '无'}
-- Tools: ${tools.map(t => t.name).join(', ') || '无'}
+- Tools: ${toolNames.join(', ') || '无'}
 - MCP: ${mcpNames.join(', ') || '无'}
 </AGENT_PLUGIN_LOADED>`;
 
@@ -259,15 +279,10 @@ export const AgentPlugin = async ({ client, directory }) => {
         Object.assign(config.agent, agentConfigs);
       }
 
-      if (toolNames.length > 0) {
-        if (!config.tools) config.tools = {};
-        toolNames.forEach(name => {
-          config.tools[name] = true;
-        });
-      }
-
       registerMcp(pluginRoot, config);
     },
+
+    tool: toolDefs,
 
     'experimental.chat.messages.transform': async (_input, output) => {
       const bootstrap = getBootstrapContent();

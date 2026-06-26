@@ -8,13 +8,13 @@ description: "课程保存技能，将本地生成的课程内容（元数据、
 
 将本地生成的课程内容保存到远程平台，包括课程记录创建、章节目录搭建、内容写入和活动保存。
 
-## 可用 MCP 工具（course-mcp）
+## 可用自定义工具
 
 | 工具 | 用途 | 关键参数 |
 |---|---|---|
 | `course_save` | 创建课程记录 | `labCode`, `name`, `remark`, `template` |
 | `fs_mkdir` | 创建章节目录 | `repo`, `parent`, `path`, `title`, `index`, `category`, `type` |
-| `fs_write` | 写入章节内容（自动提取活动并保存） | `repo`, `path`, `content` |
+| `fs_write` | 写入章节内容（自动提取活动并保存） | `repo`, `path`, `filePath`(推荐) 或 `content` |
 | `repo_refresh` | 刷新课程仓库 | `repo` |
 
 ## 工作流程
@@ -50,8 +50,9 @@ description: "课程保存技能，将本地生成的课程内容（元数据、
 ### 3. 写入章节内容（含活动保存）
 
 对每个有内容文件的节点，调用 `fs_write`：
-- 传入原始 markdown 内容（含 ```question/validate``` 活动代码块）
-- 工具一步完成：提取活动 → 替换为 ID 引用 → 写入内容 → PAKO 压缩保存活动
+- **推荐使用 `filePath` 传入本地文件路径**（相对项目根目录，如 `course/Java基础/概述.md`），工具自动读取内容并处理
+- 短内容也可用 `content` 直接传入
+- 工具一步完成：读取文件 → 提取活动 → 替换为 ID 引用 → 写入内容 → PAKO 压缩保存活动
 - 返回写入结果和活动保存状态
 
 ### 4. 刷新课程仓库

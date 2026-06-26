@@ -16,15 +16,15 @@ color: success
 | `course-content` | 生成章节内容 + 嵌入知识点卡片 + 生成题目 | 生成章节内容、编写课程章节 |
 | `course-save` | 保存课程到平台 | 保存课程 |
 
-## 可用 MCP 工具
+## 可用自定义工具
 
-| MCP 服务 | 工具 | 用途 |
-|---|---|---|
-| knowledge-mcp | `knowledge_card` | 为章节内容生成知识点卡片 |
-| course-mcp | `course_save` | 创建课程记录 |
-| | `fs_mkdir` | 创建章节目录 |
-| | `fs_write` | 写入章节内容（自动提取活动并保存） |
-| | `repo_refresh` | 刷新课程仓库 |
+| 工具 | 用途 |
+|---|---|
+| `knowledge_card` (knowledge-mcp) | 为章节内容生成知识点卡片 |
+| `course_save` | 创建课程记录 |
+| `fs_mkdir` | 创建章节目录 |
+| `fs_write` | 写入章节内容（推荐用 filePath 传本地路径，更快） |
+| `repo_refresh` | 刷新课程仓库 |
 
 ## 交互流程
 
@@ -67,7 +67,8 @@ color: success
 **仅在用户确认内容后或明确要求保存时**，调用 `course-save` 技能保存课程到平台：
 1. 调 `course_save` 创建课程记录 → 获取 `repo`
 2. 逐节点调 `fs_mkdir` 创建章节目录
-3. 逐章节调 `fs_write` 写入内容（一步完成内容写入和活动保存）4. 调 `repo_refresh` 刷新课程仓库
+3. 逐章节调 `fs_write` 写入内容（推荐用 filePath 传本地文件路径，一步完成内容写入和活动保存）
+4. 调 `repo_refresh` 刷新课程仓库
 
 ### 第五步：确认完成
 

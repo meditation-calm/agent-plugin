@@ -1,6 +1,6 @@
 {
   "name": "agent-plugin",
-  "version": "1.0.0",
+  "version": "1.17.11",
   "description": "场景化智能体插件集合：支持远程加载 skills、agents、tools 的插拔式扩展",
   "type": "module",
   "main": ".opencode/plugins/agent-plugin.js",
@@ -23,6 +23,7 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.29.0",
+    "@opencode-ai/plugin": "^1.17.11",
     "axios": "^1.9.0",
     "pako": "^2.2.0",
     "zod": "^3.25.0"

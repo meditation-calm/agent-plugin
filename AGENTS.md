@@ -90,15 +90,20 @@ description: |
 Tool 文件位于：
 
 ```text
-tools/<domain>/
+tools/<domain>/<tool-group>.js
 ```
 
 要求：
 
+- 使用 `tool()` 辅助函数（来自 `@opencode-ai/plugin`）定义工具。
+- **named export 名即为最终工具名**（如 `export const course_save = tool({...})` 注册为 `course_save` 工具）。
+- 支持 default export（工具名=文件名）和 named exports（工具名=export 名）。
+- 同一领域相关工具放同一文件，如 `tools/course/course.js` 导出 `course_save`, `fs_mkdir`, `fs_write`, `repo_refresh`。
 - 工具通过显式参数接收输入路径或内容。
 - 不硬编码本机路径。
-- 不读取密钥、Token、Cookie、`.env` 等敏感文件。
-- 如注册为 OpenCode custom tool，必须提供清晰参数 schema 和安全边界。
+- 不读取密钥、Token、Cookie、`.env` 等敏感文件（环境变量通过 `process.env` 传入）。
+- 必须提供清晰 `description`、`args`（Zod schema）和 `execute` 函数。
+- 插件通过 `return { tool: toolDefs }` 自动注册，无需手动配置。
 
 ## 6. OpenCode 插件维护规则
 
@@ -114,7 +119,8 @@ tools/<domain>/
 
 1. 将本仓库 `skills/` 加入 `config.skills.paths`，路径存在时才注册。
 2. 读取 `agents/*.md` 并注入 `config.agents`。
-3. 不覆盖用户已有 MCP 配置。
+3. 动态导入 `tools/**/*.js` 的 named exports，注册到 `return { tool: {...} }`。
+4. 不覆盖用户已有 MCP 配置。
 
 要求：
 
