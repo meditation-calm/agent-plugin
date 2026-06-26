@@ -6,7 +6,7 @@
 
 [![OpenCode](https://img.shields.io/badge/OpenCode-Plugin%20%7C%20Agents%20%7C%20Skills-6E40C9?logo=opensourceinitiative&logoColor=white)](https://opencode.ai)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Agents](https://img.shields.io/badge/agents-2-success.svg)](#agents)
+[![Agents](https://img.shields.io/badge/agents-4-success.svg)](#agents)
 [![Skills](https://img.shields.io/badge/skills-6-blue.svg)](#skills)
 [![MCP](https://img.shields.io/badge/mcp-5-purple.svg)](#mcp)
 
@@ -105,7 +105,9 @@
 | Agent | 定位 |
 |---|---|
 | [question-generator-agent](./agents/question-generator-agent.md) | 智能出题助手，生成、校验、编排题目 |
-| [course-generator-agent](./agents/course-generator-agent.md) | 课程生成助手，编排框架、卡片与章节内容 |
+| [course-outline-agent](./agents/course-outline-agent.md) | 课程大纲生成，只负责 metadata + toc |
+| [course-content-agent](./agents/course-content-agent.md) | 课程内容生成，只负责章节内容 + 卡片 + 题目 |
+| [course-save-agent](./agents/course-save-agent.md) | 课程保存，只负责将本地内容保存到平台 |
 
 ### Skills
 
