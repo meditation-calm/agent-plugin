@@ -160,7 +160,14 @@ export const repo_status = tool({
         params: { repo },
         headers: getAuthHeaders(),
       });
-      return JSON.stringify(res.data, null, 2);
+      const data = res.data;
+      return JSON.stringify({
+        course: data?.course,
+        repo: data?.repo,
+        title: data?.title,
+        description: data?.description,
+        stat: data?.stat,
+      }, null, 2);
     } catch (error) {
       return `查询课程目录失败: ${error.message}`;
     }
