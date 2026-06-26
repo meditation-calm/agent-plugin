@@ -15,6 +15,7 @@ description: "课程保存技能，将本地生成的课程内容（元数据、
 | `course_save` | 创建课程记录 | `labCode`, `name`, `remark`, `template` |
 | `fs_mkdir` | 创建章节目录 | `repo`, `parent`, `path`, `title`, `index`, `category`, `type` |
 | `fs_write` | 写入章节内容（自动提取活动并保存） | `repo`, `path`, `filePath`(推荐) 或 `content` |
+| `repo_status` | 查询课程目录结构 | `repo` |
 | `repo_refresh` | 刷新课程仓库 | `repo` |
 
 ## 工作流程

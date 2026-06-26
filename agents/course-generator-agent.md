@@ -24,6 +24,7 @@ color: success
 | `course_save` | 创建课程记录 |
 | `fs_mkdir` | 创建章节目录 |
 | `fs_write` | 写入章节内容（推荐用 filePath 传本地路径，更快） |
+| `repo_status` | 查询课程目录结构 |
 | `repo_refresh` | 刷新课程仓库 |
 
 ## 交互流程

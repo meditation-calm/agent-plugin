@@ -149,6 +149,24 @@ export const fs_write = tool({
   },
 });
 
+export const repo_status = tool({
+  description: "查询课程目录结构，返回课程编码、仓库标识、标题、描述和目录信息",
+  args: {
+    repo: tool.schema.string().describe("课程仓库标识(course_save返回的repo)"),
+  },
+  async execute({ repo }) {
+    try {
+      const res = await openapiAxios.get("/repo/status", {
+        params: { repo },
+        headers: getAuthHeaders(),
+      });
+      return JSON.stringify(res.data, null, 2);
+    } catch (error) {
+      return `查询课程目录失败: ${error.message}`;
+    }
+  },
+});
+
 export const repo_refresh = tool({
   description: "刷新课程仓库，重建导航和内容结构",
   args: {
