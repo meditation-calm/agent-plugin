@@ -73,8 +73,8 @@ export const fs_mkdir = tool({
   description: "创建章节目录结构",
   args: {
     repo: tool.schema.string().describe("课程仓库标识(course_save返回的repo)"),
-    parent: tool.schema.string().describe("父级路径，多级用/分隔"),
-    path: tool.schema.string().describe("完整路径(parent/title)"),
+    parent: tool.schema.string().optional().describe("父级路径，多级用/分隔，顶级章节不传或传空字符串"),
+    path: tool.schema.string().describe("完整路径(顶级为title，子级为parent/title)"),
     title: tool.schema.string().describe("章节标题"),
     index: tool.schema.number().describe("章节排序序号"),
     category: tool.schema.enum(["content", "chapter"]).describe("章节类别：content(内容页)或chapter(目录章节)"),
@@ -83,7 +83,7 @@ export const fs_mkdir = tool({
   async execute({ repo, parent, path, title, index, category, type }) {
     try {
       const res = await openapiAxios.post("/fs/mkdir", {
-        parent,
+        parent: parent || "",
         path,
         title,
         describe: { index, category, type },
@@ -106,9 +106,11 @@ export const fs_write = tool({
   async execute({ repo, path: chapterPath, content, filePath }, context) {
     let fileContent;
     if (filePath) {
+      const wt = context?.worktree;
+      const projectRoot = wt && wt !== '/' && path.isAbsolute(wt) ? wt : process.cwd();
       const resolved = path.isAbsolute(filePath)
         ? filePath
-        : path.resolve(context.worktree || process.cwd(), filePath);
+        : path.resolve(projectRoot, filePath);
       fileContent = fs.readFileSync(resolved, 'utf-8');
     } else if (content) {
       fileContent = content;
