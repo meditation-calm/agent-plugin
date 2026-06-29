@@ -6,8 +6,8 @@
 
 [![OpenCode](https://img.shields.io/badge/OpenCode-Plugin%20%7C%20Agents%20%7C%20Skills-6E40C9?logo=opensourceinitiative&logoColor=white)](https://opencode.ai)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
-[![Agents](https://img.shields.io/badge/agents-4-success.svg)](#agents)
-[![Skills](https://img.shields.io/badge/skills-6-blue.svg)](#skills)
+[![Agents](https://img.shields.io/badge/agents-2-success.svg)](#agents)
+[![Skills](https://img.shields.io/badge/skills-7-blue.svg)](#skills)
 [![MCP](https://img.shields.io/badge/mcp-5-purple.svg)](#mcp)
 
 </div>
@@ -102,12 +102,10 @@
 
 <a name="agents"></a>
 
-| Agent | 定位 |
-|---|---|
-| [question-generator-agent](./agents/question-generator-agent.md) | 智能出题助手，生成、校验、编排题目 |
-| [course-outline-agent](./agents/course-outline-agent.md) | 课程大纲生成，只负责 metadata + toc |
-| [course-content-agent](./agents/course-content-agent.md) | 课程内容生成，只负责章节内容 + 卡片 + 题目 |
-| [course-save-agent](./agents/course-save-agent.md) | 课程保存，只负责将本地内容保存到平台 |
+| Agent | 模式 | 定位 |
+|---|---|---|
+| [question-a2ui-agent](./agents/question-a2ui-agent.md) | subagent | A2UI交互式智能出题，支持纯文本/附件/课程三种场景自动路由 |
+| [course-generator-agent](./agents/course-generator-agent.md) | subagent | 课程生成全流程，自主完成大纲→内容→保存到平台 |
 
 ### Skills
 
@@ -115,8 +113,8 @@
 
 | Skill | 分组 | 定位 | 版本 |
 |---|---|---|---|
-| [question-generator](./skills/question/question-generator/SKILL.md) | question | 题目生成与格式校验 | 1.0.0 |
-| [question-editor](./skills/question/question-editor/SKILL.md) | question | 题目编辑、删除与试卷编排 | 1.0.0 |
+| [question-a2ui](./skills/question/question-a2ui/SKILL.md) | question | A2UI交互出题（课程选择/知识点提取/题目预览） | 1.0.0 |
+| [question](./skills/question/question/SKILL.md) | question | 题目生成、编辑、校验与试卷编排 | 1.0.0 |
 | [question-search](./skills/question/question-search/SKILL.md) | question | 题库搜索与格式转换 | 1.0.0 |
 | [course-framework](./skills/course/course-framework/SKILL.md) | course | 课程元数据与目录结构 | 1.0.0 |
 | [course-content](./skills/course/course-content/SKILL.md) | course | 章节内容生成与知识点卡片嵌入 | 1.0.0 |
@@ -134,10 +132,19 @@
 | knowledge-mcp | knowledge_card | 为章节生成知识点卡片 |
 | user-mcp | lab_query | 查询用户实验室列表 |
 | env-mcp | env_list | 查询可用实验环境模板列表 |
-| course-mcp | course_save | 创建课程记录 |
-| | fs_mkdir | 创建章节目录 |
-| | fs_write | 写入章节内容（自动提取活动并保存） |
-| | repo_refresh | 刷新课程仓库 |
+| course-mcp | course_detail | 获取课程详情 |
+| | course_chapters | 查询课程章节目录结构 |
+| | course_content | 读取课程章节内容 |
+
+### Custom Tools
+
+| 工具 | 定位 |
+|---|---|
+| course_save | 创建课程记录 |
+| fs_mkdir | 创建章节目录 |
+| fs_write | 写入章节内容（自动提取活动并保存） |
+| repo_status | 查询课程目录结构 |
+| repo_refresh | 刷新课程仓库 |
 
 ---
 
@@ -154,19 +161,31 @@ agent-plugin/
 │   └── plugins/
 │       └── agent-plugin.js         # OpenCode 插件入口
 ├── agents/
-│   └── *.md                        # 场景化 Agent 定义
+│   ├── question-a2ui-agent.md      # A2UI交互式智能出题 Agent
+│   └── course-generator-agent.md   # 课程生成 Agent
 ├── skills/
-│   └── {domain}/
-│       └── {skill-name}/
-│           └── SKILL.md            # Skill 定义
-│           └── references/         # 参考文档
-│           └── scripts/            # 校验脚本
+│   ├── question/
+│   │   ├── question-a2ui/          # A2UI交互出题技能
+│   │   │   ├── SKILL.md
+│   │   │   └── references/
+│   │   ├── question/               # 题目生成/编辑/校验技能
+│   │   │   ├── SKILL.md
+│   │   │   ├── references/
+│   │   │   └── scripts/            # 校验脚本
+│   │   └── question-search/        # 题库搜索技能
+│   ── course/
+│       ├── course-framework/       # 课程框架技能
+│       ├── course-content/         # 课程内容技能
+│       ── course-save/            # 课程保存技能
+├── tools/
+│   └── course/
+│       └── course.js               # 课程相关自定义工具
 └── mcp/
     ├── question-bank-server.js     # 题库 MCP 服务
     ├── knowledge-server.js         # 知识卡片 MCP 服务
     ├── user-server.js              # 用户相关 MCP 服务
     ├── env-server.js               # 实验环境 MCP 服务
-    └── course-server.js            # 课程保存 MCP 服务
+    └── course-server.js            # 课程读取 MCP 服务
 ```
 
 ---
