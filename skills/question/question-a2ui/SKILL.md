@@ -29,13 +29,14 @@ description: |
 
 ### Surface 管理
 - 所有阶段共用同一个surfaceId: "question-form"
-- 阶段1: createSurface + updateComponents + updateDataModel
-- 阶段2-5: 仅 updateComponents（阶段5最后加 deleteSurface）
+- 阶段1: createSurface + updateComponents
+- 阶段2-3: 仅 updateComponents
+- 阶段4: updateComponents + deleteSurface
 
 ### Catalog
 使用自定义出题Catalog: "a2ui-question-catalog"
 - 继承 Basic Catalog（includeBasicCatalog: true）
-- 自定义组件: CourseSelector, ChapterSelector, KnowledgePointSelector, QuestionPreview
+- 自定义组件: CourseSelector, ContentModeSelector, ChapterSelector, KnowledgePointSelector, QuestionPreview
 
 ### 数据绑定
 - 所有可变数据通过 updateDataModel 设置
@@ -62,6 +63,20 @@ description: |
   "labCode": "可选的实验室编码"
 }
 ```
+
+### ContentModeSelector
+内容模式选择器组件，展示两种模式供用户选择。
+
+```json
+{
+  "component": "ContentModeSelector",
+  "sourceType": "course|attachment"
+}
+```
+
+模式选项：
+- `reference`（参考资料）：仅将内容作为参考资料，按照用户需求出题
+- `parse`（解析知识点）：解析内容知识点，基于知识点出题
 
 ### ChapterSelector
 章节选择器组件，前端自行调用API获取章节树并渲染。
