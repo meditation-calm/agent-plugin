@@ -111,5 +111,10 @@ description: |
 }
 ```
 
-## 完整格式规范
-题目JSON格式规范参见 [question-schema.md](references/question-schema.md)。生成题目时参考此文件确保格式正确。
+## 职责边界
+
+**本 skill 仅负责 A2UI 交互界面输出，不负责题目生成**
+
+- 题目生成必须调用 `question` skill
+- 题目格式规范参见 `question` skill 的 references/question-schema.md
+- 本 skill 只输出 Surface 组件（CourseSelector/ChapterSelector/KnowledgePointSelector/QuestionPreview）

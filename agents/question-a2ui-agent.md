@@ -59,7 +59,17 @@ color: accent
 用户勾选知识点 → action 回传 selectedKnowledgePoints → 设置 knowledgePoints → 进入阶段4
 
 ### 阶段4：题目生成
-根据 knowledgePoints（解析模式）或用户需求（参考模式）自动推断题型/难度/数量 → 调用 question skill 生成题目 → 保存到 questions.json → 调用校验脚本校验
+
+**重要：此阶段必须先调用 question skill 生成题目，不要直接输出 A2UI JSON**
+
+执行步骤：
+1. 根据 knowledgePoints（解析模式）或用户需求（参考模式）自动推断题型/难度/数量
+2. **调用 question skill 生成题目**（使用 `skill: question` 指令）
+3. 将生成的题目保存到 `questions.json` 文件
+4. 调用校验脚本验证格式（`python scripts/validate_xxx.py`）
+5. 校验通过后进入阶段5
+
+**禁止**：在此阶段直接输出 `<a2ui-json>` 标签，必须先完成题目生成和校验。
 
 ### 阶段5：题目预览
 输出 QuestionPreview Surface（filePath="questions.json"）→ 前端读取文件 → 渲染题目卡片列表 + 操作按钮 → 用户编辑/保存 → deleteSurface
