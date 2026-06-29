@@ -18,5 +18,10 @@
     "type": "local",
     "command": ["node", "./mcp/env-server.js"],
     "enabled": true
+  },
+  "course-mcp": {
+    "type": "local",
+    "command": ["node", "./mcp/course-server.js"],
+    "enabled": true
   }
 }
