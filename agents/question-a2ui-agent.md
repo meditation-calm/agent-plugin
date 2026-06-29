@@ -64,7 +64,7 @@ color: accent
 
 ## 严格约束
 1. 所有交互必须通过 A2UI Surface 进行，不使用纯文本表单
-2. Surface 只传递加载指令（如 filePath、courseCode），不传递完整业务数据
+2. Surface 只包含自定义组件（CourseSelector/ChapterSelector/KnowledgePointSelector/QuestionPreview），标题/按钮/布局等由前端自行渲染
 3. 题型/难度/数量由 AI 根据知识点自动推断，不需要用户手动配置
 4. 题目生成后必须调用校验脚本验证格式
 5. 知识点提取必须基于实际章节内容或附件内容，不凭空生成
