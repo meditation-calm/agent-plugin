@@ -1,5 +1,48 @@
 # A2UI 消息模板
 
+## 核心规则
+
+**所有组件只传递组件标识和必要参数，不传递数据数组**
+
+- `CourseSelector`：只传组件名，前端自行获取课程列表
+- `ContentModeSelector`：只传 `sourceType`，前端渲染两个选项按钮
+- `ChapterSelector`：只传 `courseCode` 和 `repo`，前端自行获取章节树
+- `KnowledgePointSelector`：**唯一需要传数据的组件**，传递 Agent 提取的知识点数组
+- `QuestionPreview`：只传 `filePath`，前端自行读取文件
+
+---
+
+## 阶段1：课程选择 Surface
+
+```json
+<a2ui-json>
+[
+  {
+    "version": "v0.9.1",
+    "createSurface": {
+      "surfaceId": "question-form",
+      "catalogId": "a2ui-question-catalog",
+      "theme": { "primaryColor": "#4CAF50", "agentDisplayName": "智能出题助手" },
+      "sendDataModel": true
+    }
+  },
+  {
+    "version": "v0.9.1",
+    "updateComponents": {
+      "surfaceId": "question-form",
+      "components": [
+        { "id": "root", "component": "CourseSelector" }
+      ]
+    }
+  }
+]
+</a2ui-json>
+```
+
+**禁止**：不要在 CourseSelector 中嵌入课程列表数据。
+
+---
+
 ## 阶段2：内容模式选择 Surface（课程/附件场景）
 
 ```json
@@ -10,13 +53,19 @@
     "updateComponents": {
       "surfaceId": "question-form",
       "components": [
-        { "id": "root", "component": "ContentModeSelector", "sourceType": "course|attachment" }
+        { "id": "root", "component": "ContentModeSelector", "sourceType": "course" }
       ]
     }
   }
 ]
 </a2ui-json>
 ```
+
+`sourceType` 取值：`"course"` 或 `"attachment"`
+
+**禁止**：不要嵌入选项数据，前端根据 sourceType 自行渲染对应文案。
+
+---
 
 ## 阶段3：章节选择 Surface（仅课程出题场景）
 
@@ -28,13 +77,17 @@
     "updateComponents": {
       "surfaceId": "question-form",
       "components": [
-        { "id": "root", "component": "ChapterSelector", "courseCode": "{{courseCode}}", "repo": "{{repo}}" }
+        { "id": "root", "component": "ChapterSelector", "courseCode": "PY101", "repo": "repo-py101" }
       ]
     }
   }
 ]
 </a2ui-json>
 ```
+
+**禁止**：不要在 ChapterSelector 中嵌入章节树数据。
+
+---
 
 ## 阶段4：知识点提取 Surface（解析模式）
 
@@ -46,13 +99,24 @@
     "updateComponents": {
       "surfaceId": "question-form",
       "components": [
-        { "id": "root", "component": "KnowledgePointSelector", "knowledgePoints": [/* Agent提取的知识点数组 */] }
+        {
+          "id": "root",
+          "component": "KnowledgePointSelector",
+          "knowledgePoints": [
+            { "id": "kp-1", "name": "变量命名规范", "source": "1.1 变量与数据类型", "selected": false },
+            { "id": "kp-2", "name": "数据类型转换", "source": "1.1 变量与数据类型", "selected": false }
+          ]
+        }
       ]
     }
   }
 ]
 </a2ui-json>
 ```
+
+**这是唯一需要传数据的组件**。知识点由 Agent 从章节内容或附件中提取。
+
+---
 
 ## 阶段5：题目预览 Surface
 
@@ -76,6 +140,10 @@
 </a2ui-json>
 ```
 
+**禁止**：不要在 QuestionPreview 中嵌入题目数据。
+
+---
+
 ## Action 定义
 
 | Action | context | 说明 |
@@ -87,37 +155,8 @@
 | `edit_questions` | — | 进入编辑模式 |
 | `save` | — | 确认保存 |
 
-## 自定义组件说明
+---
 
-| 组件 | 类型 | 说明 |
-|------|------|------|
-| `CourseSelector` | 自定义 | 前端自行调用 API 获取课程列表并渲染选择器 |
-| `ContentModeSelector` | 自定义 | 展示两种模式供用户选择：参考资料模式 / 解析知识点模式 |
-| `ChapterSelector` | 自定义 | 前端自行调用 API 获取章节树并渲染，接收 courseCode/repo 参数 |
-| `KnowledgePointSelector` | 自定义 | 展示 Agent 提取的知识点列表供用户勾选 |
-| `QuestionPreview` | 自定义 | 前端自行读取 filePath 文件并渲染题目卡片 |
+## 前端职责
 
-## 流程分支说明
-
-**课程出题流程**：
-1. CourseSelector → 用户选择课程
-2. ContentModeSelector(sourceType="course") → 用户选择模式
-   - `reference`（参考资料）→ 跳至阶段5，用户输入需求直接出题
-   - `parse`（解析知识点）→ 进入阶段3
-3. ChapterSelector → 用户勾选章节
-4. KnowledgePointSelector → 用户确认知识点
-5. QuestionPreview → 题目预览
-
-**附件出题流程**：
-1. CourseSelector → 用户选择课程
-2. ContentModeSelector(sourceType="attachment") → 用户选择模式
-   - `reference`（参考资料）→ 跳至阶段5，用户输入需求直接出题
-   - `parse`（解析知识点）→ 进入阶段4
-3. KnowledgePointSelector → 用户确认知识点
-4. QuestionPreview → 题目预览
-
-**纯文本出题流程**：
-1. CourseSelector → 用户选择课程
-2. 跳至阶段5，用户输入需求直接出题
-
-**前端职责**：标题、按钮、布局、统计面板等 UI 元素均由前端自行渲染，A2UI Surface 只传递组件加载指令。
+标题、按钮、布局、统计面板等 UI 元素均由前端自行渲染，A2UI Surface 只传递组件加载指令。

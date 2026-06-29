@@ -52,6 +52,20 @@ description: |
 ### 消息模板
 参见 references/a2ui-templates.md
 
+## 数据传递规则
+
+**核心原则：组件只传引用，不传数据**
+
+| 组件 | 传递内容 | 前端职责 |
+|------|---------|---------|
+| CourseSelector | 仅组件名 | 自行获取课程列表 |
+| ContentModeSelector | sourceType 参数 | 根据类型渲染选项 |
+| ChapterSelector | courseCode, repo | 自行获取章节树 |
+| KnowledgePointSelector | knowledgePoints 数组 | 渲染知识点列表 |
+| QuestionPreview | filePath 字符串 | 自行读取文件渲染 |
+
+**禁止**：在 CourseSelector/ChapterSelector/QuestionPreview 中嵌入数据数组。
+
 ## 自定义组件定义
 
 ### CourseSelector
@@ -59,10 +73,11 @@ description: |
 
 ```json
 {
-  "component": "CourseSelector",
-  "labCode": "可选的实验室编码"
+  "component": "CourseSelector"
 }
 ```
+
+**禁止**：不要传递课程列表数据。
 
 ### ContentModeSelector
 内容模式选择器组件，展示两种模式供用户选择。
