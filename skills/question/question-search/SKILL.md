@@ -1,7 +1,7 @@
 ---
 name: question-search
 version: 1.0.0
-description: "题库搜索技能。通过MCP题库工具搜索已有题目，获取知识点和题目详情，转换格式后供其他技能使用。Use when: 搜索题库, 查找题目, 从题库找题, search questions."
+description: "题库搜索技能。通过MCP题库工具搜索已有题目，获取知识点和题目详情，转换格式后保存到参考文件供其他技能使用。Use when: 搜索题库, 查找题目, 从题库找题, search questions."
 ---
 
 # 题库搜索技能
@@ -34,7 +34,7 @@ description: "题库搜索技能。通过MCP题库工具搜索已有题目，获
 
 ### 4. 格式转换
 
-将题库题目转换为 `questions.json` 格式，字段映射：
+将题库题目转换为标准格式，字段映射：
 
 | 题库字段 | 目标字段 | 说明 |
 |---|---|---|
@@ -48,9 +48,16 @@ description: "题库搜索技能。通过MCP题库工具搜索已有题目，获
 
 转换后的题目需符合 [question-schema.md](references/question-schema.md) 中定义的 JSON 格式规范。
 
+### 5. 保存参考文件
+
+将转换后的题目保存到 `{workDir}/reference-questions.json`，供 `question-reference` agent 或其他技能使用。
+
+**注意**：搜索到的题目仅作为参考资料，不直接作为最终出题结果。最终题目由 `question-maker` agent 生成并保存到 `questions.json`。
+
 ## 注意事项
 
 1. 需要用户提供 `labCode` 才能搜索题库
-2. 题库题目需转换字段格式后方可存入 `questions.json`
-3. 转换后的题目应调用 `question-generator` 的校验脚本验证格式
+2. 搜索到的题目保存到 `reference-questions.json`，不直接保存到 `questions.json`
+3. 转换后的题目应调用 `question` skill 的校验脚本验证格式
 4. 转换时参考 [question-schema.md](references/question-schema.md) 确保格式正确
+5. 所有文件操作必须基于 `workDir`

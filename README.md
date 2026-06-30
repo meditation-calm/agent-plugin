@@ -102,10 +102,22 @@
 
 <a name="agents"></a>
 
+#### 智能出题 Agent 集群（主从协调模式）
+
 | Agent | 模式 | 定位 |
 |---|---|---|
-| [question-a2ui-agent](./agents/question-a2ui-agent.md) | subagent | A2UI交互式智能出题，支持纯文本/附件/课程三种场景自动路由 |
-| [course-generator-agent](./agents/course-generator-agent.md) | subagent | 课程生成全流程，自主完成大纲→内容→保存到平台 |
+| [question-orchestrator](./agents/question-orchestrator.md) | primary | 智能出题主调度器，负责需求解析、状态管理、子Agent编排 |
+| [question-ui-agent](./agents/question-ui-agent.md) | subagent | A2UI交互引导，渲染课程选择/章节选择/知识点选择/题目预览界面 |
+| [question-analyst-agent](./agents/question-analyst-agent.md) | subagent | 内容分析，从用户提供的资料中提取知识点 |
+| [question-reference-agent](./agents/question-reference-agent.md) | subagent | 资料补充，搜索题库参考题目、补充知识点背景资料 |
+| [question-maker-agent](./agents/question-maker-agent.md) | subagent | 题目生成，根据知识点生成题目并调用校验脚本 |
+| [question-reviewer-agent](./agents/question-reviewer-agent.md) | subagent | 审核校验，题目质量审核、难度校验、查重、格式终审 |
+
+#### 其他 Agent
+
+| Agent | 模式 | 定位 |
+|---|---|---|
+| ~~[course-generator-agent](./agents/course-generator-agent.md)~~ | subagent | ~~课程生成全流程~~ (deprecated) |
 
 ### Skills
 
@@ -113,7 +125,7 @@
 
 | Skill | 分组 | 定位 | 版本 |
 |---|---|---|---|
-| [question-a2ui](./skills/question/question-a2ui/SKILL.md) | question | A2UI交互出题（课程选择/知识点提取/题目预览） | 1.0.0 |
+| [question-a2ui](./skills/question/question-a2ui/SKILL.md) | question | A2UI交互界面渲染（CourseSelector/ChapterSelector/ContentModeSelector/KnowledgePointSelector/ParameterConfirm/QuestionPreview） | 1.0.0 |
 | [question](./skills/question/question/SKILL.md) | question | 题目生成、编辑、校验与试卷编排 | 1.0.0 |
 | [question-search](./skills/question/question-search/SKILL.md) | question | 题库搜索与格式转换 | 1.0.0 |
 | [course-framework](./skills/course/course-framework/SKILL.md) | course | 课程元数据与目录结构 | 1.0.0 |
@@ -161,11 +173,16 @@ agent-plugin/
 │   └── plugins/
 │       └── agent-plugin.js         # OpenCode 插件入口
 ├── agents/
-│   ├── question-a2ui-agent.md      # A2UI交互式智能出题 Agent
-│   └── course-generator-agent.md   # 课程生成 Agent
+│   ├── question-orchestrator.md    # 智能出题主调度 Agent
+│   ├── question-ui-agent.md        # A2UI交互引导子 Agent
+│   ├── question-analyst-agent.md   # 内容分析子 Agent
+│   ├── question-reference-agent.md # 资料补充子 Agent
+│   ├── question-maker-agent.md     # 题目生成子 Agent
+│   ├── question-reviewer-agent.md  # 审核校验子 Agent
+│   └── course-generator-agent.md.deprecated # 课程生成 Agent (deprecated)
 ├── skills/
 │   ├── question/
-│   │   ├── question-a2ui/          # A2UI交互出题技能
+│   │   ├── question-a2ui/          # A2UI交互界面技能
 │   │   │   ├── SKILL.md
 │   │   │   └── references/
 │   │   ├── question/               # 题目生成/编辑/校验技能

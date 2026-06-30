@@ -12,6 +12,7 @@ import fs from 'fs';
 import os from 'os';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { createHash } from 'crypto';
+import { A2UIQuestionBridge } from './a2ui-question-bridge.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -266,6 +267,8 @@ export const AgentPlugin = async ({ client, directory }) => {
 
   const getBootstrapContent = () => bootstrapContent;
 
+  const a2uiBridge = await A2UIQuestionBridge({});
+
   return {
     config: async (config) => {
       if (skillPaths.length > 0) {
@@ -283,6 +286,13 @@ export const AgentPlugin = async ({ client, directory }) => {
     },
 
     tool: toolDefs,
+
+    'tool.execute.before': async (input, output) => {
+      // 调用 A2UI 桥接插件
+      if (a2uiBridge['tool.execute.before']) {
+        await a2uiBridge['tool.execute.before'](input, output);
+      }
+    },
 
     'experimental.chat.messages.transform': async (_input, output) => {
       const bootstrap = getBootstrapContent();

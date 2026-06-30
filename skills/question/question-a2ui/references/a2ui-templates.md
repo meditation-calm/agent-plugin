@@ -12,53 +12,52 @@
 
 ---
 
-## 阶段1：课程选择 Surface
+## 阶段1：课程选择
+
+调用 `question` tool，参数如下：
 
 ```json
-<a2ui-json>
-[
-  {
-    "version": "v0.9.1",
-    "createSurface": {
-      "surfaceId": "question-form",
-      "catalogId": "a2ui-question-catalog",
-      "theme": { "primaryColor": "#4CAF50", "agentDisplayName": "智能出题助手" },
-      "sendDataModel": true
-    }
-  },
-  {
-    "version": "v0.9.1",
-    "updateComponents": {
+{
+  "questions": [{
+    "question": "请选择要出题的课程",
+    "header": "课程选择",
+    "options": [{ "label": "确认", "description": "确认选择" }],
+    "custom": true,
+    "_a2ui": {
+      "version": "v0.9.1",
       "surfaceId": "question-form",
       "components": [
         { "id": "root", "component": "CourseSelector" }
       ]
     }
-  }
-]
-</a2ui-json>
+  }]
+}
 ```
 
 **禁止**：不要在 CourseSelector 中嵌入课程列表数据。
 
 ---
 
-## 阶段2：内容模式选择 Surface（课程/附件场景）
+## 阶段2：内容模式选择（课程/附件场景）
+
+调用 `question` tool，参数如下：
 
 ```json
-<a2ui-json>
-[
-  {
-    "version": "v0.9.1",
-    "updateComponents": {
+{
+  "questions": [{
+    "question": "请选择内容使用模式",
+    "header": "内容模式",
+    "options": [{ "label": "确认", "description": "确认选择" }],
+    "custom": true,
+    "_a2ui": {
+      "version": "v0.9.1",
       "surfaceId": "question-form",
       "components": [
         { "id": "root", "component": "ContentModeSelector", "sourceType": "course" }
       ]
     }
-  }
-]
-</a2ui-json>
+  }]
+}
 ```
 
 `sourceType` 取值：`"course"` 或 `"attachment"`
@@ -67,36 +66,45 @@
 
 ---
 
-## 阶段3：章节选择 Surface（仅课程出题场景）
+## 阶段3：章节选择（仅课程出题场景）
+
+调用 `question` tool，参数如下：
 
 ```json
-<a2ui-json>
-[
-  {
-    "version": "v0.9.1",
-    "updateComponents": {
+{
+  "questions": [{
+    "question": "请选择要出题的章节",
+    "header": "章节选择",
+    "options": [{ "label": "确认", "description": "确认选择" }],
+    "custom": true,
+    "_a2ui": {
+      "version": "v0.9.1",
       "surfaceId": "question-form",
       "components": [
         { "id": "root", "component": "ChapterSelector", "courseCode": "PY101", "repo": "repo-py101" }
       ]
     }
-  }
-]
-</a2ui-json>
+  }]
+}
 ```
 
 **禁止**：不要在 ChapterSelector 中嵌入章节树数据。
 
 ---
 
-## 阶段4：知识点提取 Surface（解析模式）
+## 阶段4：知识点提取（解析模式）
+
+调用 `question` tool，参数如下：
 
 ```json
-<a2ui-json>
-[
-  {
-    "version": "v0.9.1",
-    "updateComponents": {
+{
+  "questions": [{
+    "question": "请勾选要出题的知识点",
+    "header": "知识点选择",
+    "options": [{ "label": "确认", "description": "确认选择" }],
+    "custom": true,
+    "_a2ui": {
+      "version": "v0.9.1",
       "surfaceId": "question-form",
       "components": [
         {
@@ -109,35 +117,35 @@
         }
       ]
     }
-  }
-]
-</a2ui-json>
+  }]
+}
 ```
 
 **这是唯一需要传数据的组件**。知识点由 Agent 从章节内容或附件中提取。
 
 ---
 
-## 阶段5：题目预览 Surface
+## 阶段5：题目预览
+
+调用 `question` tool，参数如下：
 
 ```json
-<a2ui-json>
-[
-  {
-    "version": "v0.9.1",
-    "updateComponents": {
+{
+  "questions": [{
+    "question": "请预览并确认题目",
+    "header": "题目预览",
+    "options": [{ "label": "确认", "description": "确认保存" }],
+    "custom": true,
+    "_a2ui": {
+      "version": "v0.9.1",
       "surfaceId": "question-form",
       "components": [
         { "id": "root", "component": "QuestionPreview", "filePath": "questions.json" }
-      ]
+      ],
+      "deleteSurface": true
     }
-  },
-  {
-    "version": "v0.9.1",
-    "deleteSurface": { "surfaceId": "question-form" }
-  }
-]
-</a2ui-json>
+  }]
+}
 ```
 
 **禁止**：不要在 QuestionPreview 中嵌入题目数据。

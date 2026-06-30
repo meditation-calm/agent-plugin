@@ -2,52 +2,65 @@
 name: question-a2ui
 version: 1.0.0
 description: |
-  A2UI交互式出题技能。通过<a2ui-json>标签在文本响应中嵌入声明式A2UI JSON，
-  在客户端渲染为富交互界面（课程选择/章节选择/知识点提取/题目预览）。
-  Use when: A2UI出题, 富交互出题, 课程选择, 知识点提取.
+  A2UI交互式出题技能。通过内置question tool的_a2ui字段输出声明式A2UI JSON，
+  在客户端渲染为富交互界面（课程选择/章节选择/用途选择/知识点选择/参数补充/题目预览）。
+  系统会真正暂停等待用户响应。
+  Use when: A2UI出题, 富交互出题, 课程选择, 章节选择, 知识点提取, 参数补充.
 ---
 
 # A2UI 出题交互技能
 
-## A2UI 消息输出格式
+## A2UI 交互方式
 
-### 输出规则
-所有A2UI JSON消息必须使用 `<a2ui-json>` 标签包裹，嵌入在文本响应中：
+### 调用格式
+当需要展示富交互界面时，使用内置 `question` tool，并在参数中包含 `_a2ui` 字段：
 
-<a2ui-json>
-[
-  {"version":"v0.9.1","createSurface":{...}},
-  {"version":"v0.9.1","updateComponents":{...}},
-  {"version":"v0.9.1","updateDataModel":{...}}
-]
-</a2ui-json>
+```json
+{
+  "questions": [{
+    "question": "请选择要出题的课程",
+    "header": "课程选择",
+    "options": [{ "label": "确认", "description": "确认选择" }],
+    "custom": true,
+    "_a2ui": {
+      "version": "v0.9.1",
+      "surfaceId": "question-form",
+      "components": [
+        { "id": "root", "component": "CourseSelector" }
+      ]
+    }
+  }]
+}
+```
 
-标签外的文本内容会被渲染为聊天消息，标签内的JSON会被A2UI Renderer渲染为Surface。
+### 字段说明
+| 字段 | 类型 | 必填 | 说明 |
+|------|------|------|------|
+| `question` | string | 是 | 界面提示文本（会被插件转换为A2UI JSON字符串） |
+| `header` | string | 是 | 界面标题（会被注入\|A2UI标识） |
+| `options` | array | 是 | 选项数组（至少包含一个确认选项） |
+| `custom` | boolean | 是 | 必须设为true，启用自定义UI渲染 |
+| `_a2ui` | object | 是 | A2UI表面定义，包含version、surfaceId、components |
+
+### 自动处理
+插件会自动处理以下转换，无需手动操作：
+- `_a2ui` 字段转为 JSON 字符串放入 `question` 字段
+- `header` 自动注入 `|A2UI` 标识
+- 清理 `_a2ui` 字段，确保符合标准格式
 
 ### 协议版本
-使用 A2UI v0.9.1 协议，version字段固定为 "v0.9.1"。
+使用 A2UI v0.9.1 协议，version 字段固定为 "v0.9.1"。
 
 ### Surface 管理
-- 所有阶段共用同一个surfaceId: "question-form"
+- 所有阶段共用同一个 surfaceId: "question-form"
 - 阶段1: createSurface + updateComponents
-- 阶段2-3: 仅 updateComponents
-- 阶段4: updateComponents + deleteSurface
+- 阶段2-4: 仅 updateComponents
+- 阶段5: updateComponents + deleteSurface
 
 ### Catalog
-使用自定义出题Catalog: "a2ui-question-catalog"
+使用自定义出题 Catalog: "a2ui-question-catalog"
 - 继承 Basic Catalog（includeBasicCatalog: true）
-- 自定义组件: CourseSelector, ContentModeSelector, ChapterSelector, KnowledgePointSelector, QuestionPreview
-
-### 数据绑定
-- 所有可变数据通过 updateDataModel 设置
-- 输入组件使用 {path: "/..."} DataBinding
-- 题目数据通过文件路径传递，前端自行加载
-
-### Action处理
-当收到用户消息中包含 a2ui_action metadata时:
-1. 从context中提取用户操作数据
-2. 调用对应 skill 执行业务逻辑
-3. 输出新的 <a2ui-json> 更新Surface
+- 自定义组件: CourseSelector, ChapterSelector, ContentModeSelector, KnowledgePointSelector, ParameterConfirm, QuestionPreview
 
 ### 消息模板
 参见 references/a2ui-templates.md
@@ -59,9 +72,10 @@ description: |
 | 组件 | 传递内容 | 前端职责 |
 |------|---------|---------|
 | CourseSelector | 仅组件名 | 自行获取课程列表 |
-| ContentModeSelector | sourceType 参数 | 根据类型渲染选项 |
 | ChapterSelector | courseCode, repo | 自行获取章节树 |
+| ContentModeSelector | sourceType 参数 | 根据类型渲染选项 |
 | KnowledgePointSelector | knowledgePoints 数组 | 渲染知识点列表 |
+| ParameterConfirm | topic, questionTypes, difficulty, questionCount（已有值） | 渲染参数表单，收集用户补充 |
 | QuestionPreview | filePath 字符串 | 自行读取文件渲染 |
 
 **禁止**：在 CourseSelector/ChapterSelector/QuestionPreview 中嵌入数据数组。
@@ -116,6 +130,25 @@ description: |
 }
 ```
 
+### ParameterConfirm
+参数补充组件，展示已解析的参数并允许用户补充缺失信息。
+
+```json
+{
+  "component": "ParameterConfirm",
+  "topic": "Python语言设计",
+  "questionTypes": ["radio", "checkbox"],
+  "difficulty": "middle",
+  "questionCount": 10
+}
+```
+
+字段说明：
+- `topic`: 出题主题（可为空，由用户补充）
+- `questionTypes`: 题型要求（可为空数组，由用户选择）
+- `difficulty`: 难度级别 low/middle/high（可为空，由用户选择）
+- `questionCount`: 题目数量（可为空，由用户输入）
+
 ### QuestionPreview
 题目预览组件，前端自行读取文件并渲染题目卡片。
 
@@ -132,4 +165,4 @@ description: |
 
 - 题目生成必须调用 `question` skill
 - 题目格式规范参见 `question` skill 的 references/question-schema.md
-- 本 skill 只输出 Surface 组件（CourseSelector/ChapterSelector/KnowledgePointSelector/QuestionPreview）
+- 本 skill 只输出 Surface 组件（CourseSelector/ChapterSelector/ContentModeSelector/KnowledgePointSelector/ParameterConfirm/QuestionPreview）
