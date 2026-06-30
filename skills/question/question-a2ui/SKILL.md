@@ -2,7 +2,7 @@
 name: question-a2ui
 version: 1.0.0
 description: |
-  A2UI交互式出题技能。通过内置question tool的_a2ui字段输出声明式A2UI JSON，
+  A2UI交互式出题技能。指导Agent如何构造参数并调用内置 `question` tool，
   在客户端渲染为富交互界面（课程选择/章节选择/用途选择/知识点选择/参数补充/题目预览）。
   系统会真正暂停等待用户响应。
   Use when: A2UI出题, 富交互出题, 课程选择, 章节选择, 知识点提取, 参数补充.
@@ -12,9 +12,11 @@ description: |
 
 ## A2UI 交互方式
 
-### 调用格式
-当需要展示富交互界面时，由**主Agent**调用内置 `question` tool，并在参数中包含 `_a2ui` 字段：
+### 工具调用规范
+当需要展示富交互界面时，**必须调用内置 `question` tool**，并在 arguments 中包含 `_a2ui` 字段。
 
+**正确做法**：
+调用 `question` tool，参数如下：
 ```json
 {
   "questions": [{
@@ -32,6 +34,10 @@ description: |
   }]
 }
 ```
+
+**错误做法**：
+- 禁止直接输出 JSON 文本到对话中
+- 禁止使用其他 tool 替代 `question` tool
 
 ### 字段说明
 | 字段 | 类型 | 必填 | 说明 |
@@ -161,8 +167,8 @@ description: |
 
 ## 职责边界
 
-**本 skill 仅负责 A2UI 交互界面输出，不负责题目生成**
+**本 skill 仅负责指导 A2UI 交互界面的 tool 调用，不负责题目生成**
 
 - 题目生成必须调用 `question` skill
 - 题目格式规范参见 `question` skill 的 references/question-schema.md
-- 本 skill 只输出 Surface 组件（CourseSelector/ChapterSelector/ContentModeSelector/KnowledgePointSelector/ParameterConfirm/QuestionPreview）
+- 本 skill 只定义 Surface 组件（CourseSelector/ChapterSelector/ContentModeSelector/KnowledgePointSelector/ParameterConfirm/QuestionPreview）
