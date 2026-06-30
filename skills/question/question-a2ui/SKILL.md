@@ -13,7 +13,7 @@ description: |
 ## A2UI 交互方式
 
 ### 调用格式
-当需要展示富交互界面时，使用内置 `question` tool，并在参数中包含 `_a2ui` 字段：
+当需要展示富交互界面时，由**主Agent**调用内置 `question` tool，并在参数中包含 `_a2ui` 字段：
 
 ```json
 {

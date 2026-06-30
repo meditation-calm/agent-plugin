@@ -107,7 +107,7 @@
 | Agent | 模式 | 定位 |
 |---|---|---|
 | [question-orchestrator](./agents/question-orchestrator.md) | primary | 智能出题主调度器，负责需求解析、状态管理、子Agent编排 |
-| [question-ui-agent](./agents/question-ui-agent.md) | subagent | A2UI交互引导，渲染课程选择/章节选择/知识点选择/题目预览界面 |
+| [question-ui-agent](./agents/question-ui-agent.md) | subagent | A2UI交互引导，准备UI定义+处理用户响应（主Agent代理调用question tool） |
 | [question-analyst-agent](./agents/question-analyst-agent.md) | subagent | 内容分析，从用户提供的资料中提取知识点 |
 | [question-reference-agent](./agents/question-reference-agent.md) | subagent | 资料补充，搜索题库参考题目、补充知识点背景资料 |
 | [question-maker-agent](./agents/question-maker-agent.md) | subagent | 题目生成，根据知识点生成题目并调用校验脚本 |
