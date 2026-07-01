@@ -50,14 +50,14 @@ description: "题库搜索技能。通过MCP题库工具搜索已有题目，获
 
 ### 5. 保存参考文件
 
-将转换后的题目保存到 `{workDir}/reference-questions.json`，供 `question-reference` agent 或其他技能使用。
+将转换后的题目保存到参考文件（例如 `{workDir}/python_reference.json`、`{workDir}/题库_选择题.json` 等），供 `question-reference` agent 或其他技能使用。
 
-**注意**：搜索到的题目仅作为参考资料，不直接作为最终出题结果。最终题目由 `question-maker` agent 生成并保存到 `questions.json`。
+**注意**：搜索到的题目仅作为参考资料，不直接作为最终出题结果。最终题目由 `question-maker` agent 生成并保存到题目文件。
 
 ## 注意事项
 
 1. 需要用户提供 `labCode` 才能搜索题库
-2. 搜索到的题目保存到 `reference-questions.json`，不直接保存到 `questions.json`
+2. 搜索到的题目保存到参考文件（例如 `python_reference.json`、`题库_选择题.json` 等），不直接保存到最终题目文件
 3. 转换后的题目应调用 `question` skill 的校验脚本验证格式
 4. 转换时参考 [question-schema.md](references/question-schema.md) 确保格式正确
 5. 所有文件操作必须基于 `workDir`
