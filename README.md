@@ -107,12 +107,12 @@
 
 | Agent | 模式 | 定位 |
 |---|---|---|
-| [question-orchestrator](./agents/question-orchestrator.md) | primary | 智能出题主调度器，负责意图识别、任务分发、全链路验收 |
-| [question-analyst-agent](./agents/question-analyst-agent.md) | subagent | 内容分析，从用户提供的资料中提取知识点 |
-| [question-designer-agent](./agents/question-designer-agent.md) | subagent | 出题方案设计，确定题型分布、难度梯度、考核维度 |
-| [question-maker-agent](./agents/question-maker-agent.md) | subagent | 题目生成，根据方案生成题目并调用校验脚本验证格式 |
-| [question-reviewer-agent](./agents/question-reviewer-agent.md) | subagent | 内容审核，答案正确性、难度合理性、知识点覆盖、查重 |
-| [question-editor-agent](./agents/question-editor-agent.md) | subagent | 题目编辑，根据审核意见或用户反馈修改题目 |
+| [智能出题](./agents/question/智能出题.md) | primary | 智能出题主调度器，负责意图识别、任务分发、全链路验收 |
+| [内容分析](./agents/question/内容分析.md) | subagent | 内容分析，从用户提供的资料中提取知识点 |
+| [方案设计](./agents/question/方案设计.md) | subagent | 方案设计，确定题型分布、难度梯度、考核维度 |
+| [题目生成](./agents/question/题目生成.md) | subagent | 题目生成，根据方案生成题目并调用校验脚本验证格式 |
+| [内容审核](./agents/question/内容审核.md) | subagent | 内容审核，答案正确性、难度合理性、知识点覆盖、查重 |
+| [题目编辑](./agents/question/题目编辑.md) | subagent | 题目编辑，根据审核意见或用户反馈修改题目 |
 
 ### Skills
 
@@ -169,13 +169,14 @@ agent-plugin/
 │   └── plugins/
 │       └── agent-plugin.js         # OpenCode 插件入口
 ├── agents/
-│   ├── question-orchestrator.md    # 智能出题主调度 Agent
-│   ├── question-analyst-agent.md   # 内容分析子 Agent
-│   ├── question-designer-agent.md  # 出题方案设计子 Agent
-│   ├── question-maker-agent.md     # 题目生成子 Agent
-│   ├── question-reviewer-agent.md  # 内容审核子 Agent
-│   ├── question-editor-agent.md    # 题目编辑子 Agent
-│   ── course-generator-agent.md.deprecated # 课程生成 Agent (deprecated)
+│   └── question/
+│       ├── 智能出题.md           # 智能出题主调度 Agent
+│       ├── 内容分析.md           # 内容分析子 Agent
+│       ├── 方案设计.md           # 方案设计子 Agent
+│       ├── 题目生成.md           # 题目生成子 Agent
+│       ├── 内容审核.md           # 内容审核子 Agent
+│       ├── 题目编辑.md           # 题目编辑子 Agent
+│       ── course-generator-agent.md.deprecated # 课程生成 Agent (deprecated)
 ├── skills/
 │   ├── question/
 │   │   ├── question/               # 题目生成/编辑/校验技能
