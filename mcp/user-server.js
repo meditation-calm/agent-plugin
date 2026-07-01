@@ -28,7 +28,7 @@ const server = new McpServer({
 
 server.tool(
   "lab_query",
-  "查询用户实验室列表，获取实验室编码、名称、状态等信息",
+  "分页查询用户可管理的实验室列表，获取实验室编码、名称、状态等信息",
   {
     current: z.number().describe("分页页码，从1开始"),
     size: z.number().describe("每页数量，每次最多查询20个"),

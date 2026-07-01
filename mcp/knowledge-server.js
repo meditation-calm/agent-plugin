@@ -12,7 +12,7 @@ const server = new McpServer({
 
 server.tool(
   "knowledge_card",
-  "根据章节内容生成知识点卡片，返回结构化的知识点列表",
+  "生成知识点卡片，返回结构化的知识点列表",
   {
     content: z.string().describe("章节知识点内容，包含章节标题、知识点详情、学习目标、实践要求等"),
     generateOnEmpty: z.boolean().describe("如果内容为空，是否生成").default(true),

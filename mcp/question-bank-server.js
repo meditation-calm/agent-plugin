@@ -172,11 +172,22 @@ server.tool(
         })
       );
 
+      const data = res?.data;
+      const result = {
+        current: data?.current,
+        size: data?.size,
+        total: data?.total,
+        rows: questions,
+        hasPrevious: data?.hasPrevious,
+        hasNext: data?.hasNext,
+        pages: data?.pages,
+      };
+
       return {
         content: [
           {
             type: "text",
-            text: JSON.stringify(questions, null, 2),
+            text: JSON.stringify(result, null, 2),
           },
         ],
       };

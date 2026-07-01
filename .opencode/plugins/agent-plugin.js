@@ -5,6 +5,7 @@
  * - 本地组件自动发现与注册（skills/agents/tools）
  * - 通过 OpenCode 插件系统加载（远程 clone 由 OpenCode 处理）
  * - 注册表管理（registry）跟踪组件版本
+ * - 全局工具调用拦截与包装（A2UI/TODO 等）
  */
 
 import path from 'path';
@@ -12,7 +13,6 @@ import fs from 'fs';
 import os from 'os';
 import { fileURLToPath, pathToFileURL } from 'url';
 import { createHash } from 'crypto';
-import { A2UIQuestionBridge } from './a2ui-question-bridge.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
@@ -267,8 +267,6 @@ export const AgentPlugin = async ({ client, directory }) => {
 
   const getBootstrapContent = () => bootstrapContent;
 
-  const a2uiBridge = await A2UIQuestionBridge({});
-
   return {
     config: async (config) => {
       if (skillPaths.length > 0) {
@@ -287,14 +285,8 @@ export const AgentPlugin = async ({ client, directory }) => {
 
     tool: toolDefs,
 
-    'tool.execute.before': async (input, output) => {
-      // 调用 A2UI 桥接插件
-      if (a2uiBridge['tool.execute.before']) {
-        await a2uiBridge['tool.execute.before'](input, output);
-      }
-    },
-
     'experimental.chat.messages.transform': async (_input, output) => {
+      // 1. 注入 Bootstrap
       const bootstrap = getBootstrapContent();
       if (bootstrap && output.messages.length) {
         const firstUser = output.messages.find(m => m.info.role === 'user');
@@ -304,7 +296,41 @@ export const AgentPlugin = async ({ client, directory }) => {
           }
         }
       }
+
+      // 2. 全局工具调用拦截与包装
+      for (const msg of output.messages) {
+        if (!msg.parts) continue;
+        
+        for (const part of msg.parts) {
+          if (part.type === 'tool-call' && part.args) {
+            const { tool } = part;
+
+            // Question Tool 包装 (A2UI)
+            if (tool === 'question' && part.args.questions) {
+              part.args = {
+                id: 'A2UI',
+                data: part.args
+              };
+            }
+
+            // Todo Tool 包装
+            if (tool === 'todo' && part.args.todos) {
+              part.args = {
+                id: 'A2UI',
+                data: part.args
+              };
+            }
+
+            // Open File Tool 包装 (A2UI)
+            if (tool === 'openfile' && part.args.filePath) {
+              part.args = {
+                id: 'A2UI',
+                data: part.args
+              };
+            }
+          }
+        }
+      }
     },
   };
 };
-

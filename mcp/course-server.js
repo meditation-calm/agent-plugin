@@ -36,6 +36,61 @@ const server = new McpServer({
 });
 
 server.tool(
+  "course_list",
+  "分页查询用户可管理的课程列表，可按实验室筛选、关键词搜索",
+  {
+    labCode: z.string().describe("实验室编码code"),
+    current: z.number().describe("分页页码，从1开始"),
+    size: z.number().describe("每页数量，每次最多查询20个"),
+    keywords: z.string().optional().describe("搜索关键词, 可选"),
+  },
+  async ({ labCode, current, size, keywords }) => {
+    try {
+      const res = await labAxios.post(
+        "/api/v0.3/course/page",
+        {
+          current: current || 1,
+          size: size || 10,
+          labCode,
+          keywords: keywords || "",
+        },
+        { headers: getAuthHeaders() }
+      );
+
+      const data = res?.data;
+      const result = {
+        current: data?.current,
+        size: data?.size,
+        total: data?.total,
+        rows: data?.rows?.map(formatCourseDetail),
+        hasPrevious: data?.hasPrevious,
+        hasNext: data?.hasNext,
+        pages: data?.pages,
+      };
+
+      return {
+        content: [
+          {
+            type: "text",
+            text: JSON.stringify(result, null, 2),
+          },
+        ],
+      };
+    } catch (error) {
+      return {
+        content: [
+          {
+            type: "text",
+            text: `课程列表查询失败: ${error.message}`,
+          },
+        ],
+        isError: true,
+      };
+    }
+  }
+);
+
+server.tool(
   "course_detail",
   "获取课程详情，包含课程编码、仓库标识、名称、描述、模板、章节统计等信息",
   {
