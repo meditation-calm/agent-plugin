@@ -127,24 +127,22 @@ const scanRecursive = (dirPath, type, results) => {
       const stats = fs.statSync(entryPath);
 
       if (stats.isDirectory()) {
+        // skill 目录：优先检查是否为完整 skill 目录（含 SKILL.md），否则递归
         if (type === 'skill') {
           const skillMdPath = path.join(entryPath, 'SKILL.md');
           if (fs.existsSync(skillMdPath)) {
             results.push({ type: 'skill', path: entryPath, name: entry });
-          } else {
-            // 递归搜索子目录（支持 skills/<domain>/<skill-name>/SKILL.md）
-            scanRecursive(entryPath, type, results);
+            continue;
           }
-        } else if (type === 'tool') {
-          // tools 目录下可能有子目录，递归搜索
-          scanRecursive(entryPath, type, results);
         }
+        // tool / agent 目录：直接递归搜索子目录
+        scanRecursive(entryPath, type, results);
       } else {
         // 文件匹配
-        if (type === 'agent' && entry.endsWith('.md')) {
-          results.push({ type: 'agent', path: entryPath, name: path.basename(entry, '.md') });
-        } else if (type === 'tool' && (entry.endsWith('.js') || entry.endsWith('.mjs'))) {
-          results.push({ type: 'tool', path: entryPath, name: path.basename(entry, path.extname(entry)) });
+        const isAgent = type === 'agent' && entry.endsWith('.md');
+        const isTool = type === 'tool' && /\.(js|mjs)$/.test(entry);
+        if (isAgent || isTool) {
+          results.push({ type, path: entryPath, name: path.basename(entry, path.extname(entry)) });
         }
       }
     }
