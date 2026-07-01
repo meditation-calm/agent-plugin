@@ -284,16 +284,16 @@ export const AgentPlugin = async ({ client, directory }) => {
     tool: toolDefs,
 
     'experimental.chat.messages.transform': async (_input, output) => {
-      // 1. 注入 Bootstrap
-      const bootstrap = getBootstrapContent();
-      if (bootstrap && output.messages.length) {
-        const firstUser = output.messages.find(m => m.info.role === 'user');
-        if (firstUser && firstUser.parts.length) {
-          if (!firstUser.parts.some(p => p.type === 'text' && p.text.includes('AGENT_PLUGIN_LOADED'))) {
-            firstUser.parts.unshift({ ...firstUser.parts[0], type: 'text', text: bootstrap });
-          }
-        }
-      }
+      // 1. 注入 Bootstrap (已禁用，避免干扰 Agent 流程)
+      // const bootstrap = getBootstrapContent();
+      // if (bootstrap && output.messages.length) {
+      //   const firstUser = output.messages.find(m => m.info.role === 'user');
+      //   if (firstUser && firstUser.parts.length) {
+      //     if (!firstUser.parts.some(p => p.type === 'text' && p.text.includes('AGENT_PLUGIN_LOADED'))) {
+      //       firstUser.parts.unshift({ ...firstUser.parts[0], type: 'text', text: bootstrap });
+      //     }
+      //   }
+      // }
 
       // 2. 全局工具调用拦截与包装
       for (const msg of output.messages) {
