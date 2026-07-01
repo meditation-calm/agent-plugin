@@ -4,7 +4,7 @@
 
 import path from 'path';
 import fs from 'fs';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const pluginRoot = path.resolve(__dirname, '../..');
@@ -57,15 +57,36 @@ function registerAgents(config) {
   }
 }
 
-function registerTools(config) {
-  if (!fs.existsSync(toolsDir)) return;
-  const toolsFiles = fs.readdirSync(toolsDir).filter(f => f !== '.gitkeep');
-  if (toolsFiles.length === 0) return;
-  config.tools = config.tools || {};
-  config.tools.paths = config.tools.paths || [];
-  if (!config.tools.paths.includes(toolsDir)) {
-    config.tools.paths.push(toolsDir);
-  }
+async function loadToolDefinitions() {
+  const toolDefs = {};
+  if (!fs.existsSync(toolsDir)) return toolDefs;
+
+  const scanDir = async (dir) => {
+    if (!fs.existsSync(dir)) return;
+    const entries = fs.readdirSync(dir);
+    for (const entry of entries) {
+      const entryPath = path.join(dir, entry);
+      const stats = fs.statSync(entryPath);
+      if (stats.isDirectory()) {
+        await scanDir(entryPath);
+      } else if (/\.(js|mjs)$/.test(entry)) {
+        try {
+          const mod = await import(pathToFileURL(entryPath).href);
+          if (mod.default && typeof mod.default.execute === 'function') {
+            toolDefs[entry.replace(/\.(js|mjs)$/, '')] = mod.default;
+          }
+          for (const [name, value] of Object.entries(mod)) {
+            if (name !== 'default' && value && typeof value.execute === 'function') {
+              toolDefs[name] = value;
+            }
+          }
+        } catch {}
+      }
+    }
+  };
+
+  await scanDir(toolsDir);
+  return toolDefs;
 }
 
 function registerMcp(config) {
@@ -86,13 +107,16 @@ function registerMcp(config) {
 }
 
 export const AgentPlugin = async () => {
+  const toolDefs = await loadToolDefinitions();
+
   return {
     config: async (config) => {
       registerSkills(config);
       registerAgents(config);
-      registerTools(config);
       registerMcp(config);
     },
+
+    tool: toolDefs,
 
     'experimental.chat.messages.transform': async (_input, output) => {
       for (const msg of output.messages) {
