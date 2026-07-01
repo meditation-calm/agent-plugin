@@ -7,7 +7,7 @@
 [![OpenCode](https://img.shields.io/badge/OpenCode-Plugin%20%7C%20Agents%20%7C%20Skills-6E40C9?logo=opensourceinitiative&logoColor=white)](https://opencode.ai)
 [![License](https://img.shields.io/badge/License-MIT-yellow.svg)](./LICENSE)
 [![Agents](https://img.shields.io/badge/agents-6-success.svg)](#agents)
-[![Skills](https://img.shields.io/badge/skills-7-blue.svg)](#skills)
+[![Skills](https://img.shields.io/badge/skills-10-blue.svg)](#skills)
 [![MCP](https://img.shields.io/badge/mcp-5-purple.svg)](#mcp)
 
 </div>
@@ -107,12 +107,12 @@
 
 | Agent | 模式 | 定位 |
 |---|---|---|
-| [智能出题](./agents/question/智能出题.md) | primary | 智能出题主调度器，负责意图识别、任务分发、全链路验收 |
-| [内容分析](./agents/question/内容分析.md) | subagent | 内容分析，从用户提供的资料中提取知识点 |
-| [方案设计](./agents/question/方案设计.md) | subagent | 方案设计，确定题型分布、难度梯度、考核维度 |
-| [题目生成](./agents/question/题目生成.md) | subagent | 题目生成，根据方案生成题目并调用校验脚本验证格式 |
-| [内容审核](./agents/question/内容审核.md) | subagent | 内容审核，答案正确性、难度合理性、知识点覆盖、查重 |
-| [题目编辑](./agents/question/题目编辑.md) | subagent | 题目编辑，根据审核意见或用户反馈修改题目 |
+| [智能出题](./agents/智能出题.md) | primary | 智能出题主调度器，负责意图识别、任务分发、全链路验收 |
+| [内容分析](./agents/内容分析.md) | subagent | 内容分析，从用户提供的资料中提取知识点 |
+| [方案设计](./agents/方案设计.md) | subagent | 方案设计，确定题型分布、难度梯度、考核维度 |
+| [题目生成](./agents/题目生成.md) | subagent | 题目生成，根据方案生成题目并调用校验脚本验证格式 |
+| [内容审核](./agents/内容审核.md) | subagent | 内容审核，答案正确性、难度合理性、知识点覆盖、查重 |
+| [题目编辑](./agents/题目编辑.md) | subagent | 题目编辑，根据审核意见或用户反馈修改题目 |
 
 ### Skills
 
@@ -120,11 +120,14 @@
 
 | Skill | 分组 | 定位 | 版本 |
 |---|---|---|---|
-| [question](./skills/question/question/SKILL.md) | question | 题目生成、编辑、校验与试卷编排 | 1.0.0 |
-| [question-search](./skills/question/question-search/SKILL.md) | question | 题库搜索与格式转换 | 1.0.0 |
-| [course-framework](./skills/course/course-framework/SKILL.md) | course | 课程元数据与目录结构 | 1.0.0 |
-| [course-content](./skills/course/course-content/SKILL.md) | course | 章节内容生成与知识点卡片嵌入 | 1.0.0 |
-| [course-save](./skills/course/course-save/SKILL.md) | course | 保存课程到平台 | 1.0.0 |
+| [question](skills/question/SKILL.md) | question | 题目生成、编辑、校验与试卷编排 | 1.0.0 |
+| [question-search](skills/question-search/SKILL.md) | question | 题库搜索与格式转换 | 1.0.0 |
+| [course-framework](skills/course-framework/SKILL.md) | course | 课程元数据与目录结构 | 1.0.0 |
+| [course-content](skills/course-content/SKILL.md) | course | 章节内容生成与知识点卡片嵌入 | 1.0.0 |
+| [course-save](skills/course-save/SKILL.md) | course | 保存课程到平台 | 1.0.0 |
+| [docx](skills/docx/SKILL.md) | docs | Word 文档创建、编辑、格式校验 | 1.0.0 |
+| [xlsx](skills/xlsx/SKILL.md) | docs | Excel 表格创建、编辑、数据校验 | 1.0.0 |
+| [pdf](skills/pdf/SKILL.md) | docs | PDF 表单填充、提取、合并与校验 | 1.0.0 |
 
 ### MCP
 
@@ -161,7 +164,6 @@
 ```text
 agent-plugin/
 ├── package.json                    # npm 包配置
-├── mcp-config.json                 # MCP 服务配置
 ├── README.md                       # 本文件
 ├── AGENTS.md                       # 维护规则
 ├── LICENSE                         # MIT 许可证
@@ -169,14 +171,13 @@ agent-plugin/
 │   └── plugins/
 │       └── agent-plugin.js         # OpenCode 插件入口
 ├── agents/
-│   └── question/
-│       ├── 智能出题.md           # 智能出题主调度 Agent
-│       ├── 内容分析.md           # 内容分析子 Agent
-│       ├── 方案设计.md           # 方案设计子 Agent
-│       ├── 题目生成.md           # 题目生成子 Agent
-│       ├── 内容审核.md           # 内容审核子 Agent
-│       ├── 题目编辑.md           # 题目编辑子 Agent
-│       ── course-generator-agent.md.deprecated # 课程生成 Agent (deprecated)
+│   ├── 智能出题.md               # 智能出题主调度 Agent
+│   ├── 内容分析.md               # 内容分析子 Agent
+│   ├── 方案设计.md               # 方案设计子 Agent
+│   ├── 题目生成.md               # 题目生成子 Agent
+│   ├── 内容审核.md               # 内容审核子 Agent
+│   ├── 题目编辑.md               # 题目编辑子 Agent
+│   └── course-generator-agent.md.deprecated # 课程生成 Agent (deprecated)
 ├── skills/
 │   ├── question/
 │   │   ├── question/               # 题目生成/编辑/校验技能
@@ -184,10 +185,22 @@ agent-plugin/
 │   │   │   ├── references/
 │   │   │   └── scripts/            # 校验脚本
 │   │   └── question-search/        # 题库搜索技能
-│   ── course/
-│       ├── course-framework/       # 课程框架技能
-│       ├── course-content/         # 课程内容技能
-│       ── course-save/            # 课程保存技能
+│   │       ├── SKILL.md
+│   │       └── references/
+│   ├── course/
+│   │   ├── course-framework/       # 课程框架技能
+│   │   ├── course-content/         # 课程内容技能
+│   │   └── course-save/            # 课程保存技能
+│   └── docs/
+│       ├── docx/                   # Word 文档技能
+│       │   ├── SKILL.md
+│       │   └── scripts/
+│       ├── xlsx/                   # Excel 表格技能
+│       │   ├── SKILL.md
+│       │   └── scripts/
+│       └── pdf/                    # PDF 处理技能
+│           ├── SKILL.md
+│           └── scripts/
 ├── tools/
 │   ├── common/
 │   │   └── open-file.js            # 通用文件预览工具
@@ -235,8 +248,8 @@ agent-plugin/
 
 ### 添加新 MCP 服务
 
-1. 在 `mcp/` 目录创建服务脚本
-2. 在 `mcp-config.json` 中添加服务配置
+1. 在 `mcp/` 目录创建 `<name>-server.js` 脚本
+2. 插件自动发现并注册为 `<name>-mcp` 服务
 3. 更新 README 索引
 
 ### 添加新 Tool

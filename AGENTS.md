@@ -24,6 +24,7 @@
 | `agents/` | 可注入 OpenCode 的场景化 Agent 定义 | 是 |
 | `skills/` | 可被 OpenCode skill tool 加载的 Skill 定义 | 是 |
 | `tools/` | 自定义工具脚本或资源 | 视插件实现 |
+| `mcp/` | MCP 服务脚本（自动发现） | 是 |
 
 ## 3. Agent 维护规则
 

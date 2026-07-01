@@ -26,7 +26,7 @@ python -m markitdown presentation.pptx
 python scripts/thumbnail.py presentation.pptx
 
 # Raw XML
-python scripts/docx/unpack.py presentation.pptx unpacked/
+python scripts/office/unpack.py presentation.pptx unpacked/
 ```
 
 ---
@@ -209,7 +209,7 @@ Report ALL issues found, including minor ones.
 Convert presentations to individual slide images for visual inspection:
 
 ```bash
-python scripts/docx/soffice.py --headless --convert-to pdf output.pptx
+python scripts/office/soffice.py --headless --convert-to pdf output.pptx
 pdftoppm -jpeg -r 150 output.pdf slide
 ```
 

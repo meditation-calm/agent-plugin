@@ -56,7 +56,7 @@ When using an existing presentation as a template:
 ### unpack.py
 
 ```bash
-python scripts/docx/unpack.py input.pptx unpacked/
+python scripts/office/unpack.py input.pptx unpacked/
 ```
 
 Extracts PPTX, pretty-prints XML, escapes smart quotes.
@@ -81,7 +81,7 @@ Removes slides not in `<p:sldIdLst>`, unreferenced media, orphaned rels.
 ### pack.py
 
 ```bash
-python scripts/docx/pack.py unpacked/ output.pptx --original input.pptx
+python scripts/office/pack.py unpacked/ output.pptx --original input.pptx
 ```
 
 Validates, repairs, condenses XML, re-encodes smart quotes.

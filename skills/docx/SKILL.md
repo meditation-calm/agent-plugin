@@ -23,7 +23,7 @@ A .docx file is a ZIP archive containing XML files.
 Legacy `.doc` files must be converted before editing:
 
 ```bash
-python scripts/docx/soffice.py --headless --convert-to docx document.doc
+python scripts/office/soffice.py --headless --convert-to docx document.doc
 ```
 
 ### Reading Content
@@ -33,13 +33,13 @@ python scripts/docx/soffice.py --headless --convert-to docx document.doc
 pandoc --track-changes=all document.docx -o output.md
 
 # Raw XML access
-python scripts/docx/unpack.py document.docx unpacked/
+python scripts/office/unpack.py document.docx unpacked/
 ```
 
 ### Converting to Images
 
 ```bash
-python scripts/docx/soffice.py --headless --convert-to pdf document.docx
+python scripts/office/soffice.py --headless --convert-to pdf document.docx
 pdftoppm -jpeg -r 150 document.pdf page
 ```
 
@@ -71,7 +71,7 @@ Packer.toBuffer(doc).then(buffer => fs.writeFileSync("doc.docx", buffer));
 ### Validation
 After creating the file, validate it. If validation fails, unpack, fix the XML, and repack.
 ```bash
-python scripts/docx/validate.py doc.docx
+python scripts/office/validate.py doc.docx
 ```
 
 ### Page Size
@@ -292,7 +292,7 @@ sections: [{
 
 ### Step 1: Unpack
 ```bash
-python scripts/docx/unpack.py document.docx unpacked/
+python scripts/office/unpack.py document.docx unpacked/
 ```
 Extracts XML, pretty-prints, merges adjacent runs, and converts smart quotes to XML entities (`&#x201C;` etc.) so they survive editing. Use `--merge-runs false` to skip run merging.
 
@@ -326,7 +326,7 @@ Then add markers to document.xml (see Comments in XML Reference).
 
 ### Step 3: Pack
 ```bash
-python scripts/docx/pack.py unpacked/ output.docx --original document.docx
+python scripts/office/pack.py unpacked/ output.docx --original document.docx
 ```
 Validates with auto-repair, condenses XML, and creates DOCX. Use `--validate false` to skip.
 
